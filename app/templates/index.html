@@ -54,12 +54,6 @@
                 <div class="form-text small-note">Pega aquí la URL larga que quieres acortar.</div>
               </div>
 
-              <div class="mb-3">
-                <label for="customAlias" class="form-label">Alias (opcional)</label>
-                <input type="text" class="form-control" id="customAlias" placeholder="mi-alias-secreto (opcional)">
-                <div class="form-text small-note">Si lo dejas vacío se generará uno automáticamente.</div>
-              </div>
-
               <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-primary">Acortar</button>
                 <button type="button" id="clearBtn" class="btn btn-outline-secondary">Limpiar</button>
@@ -103,7 +97,6 @@
     <script>
       const form = document.getElementById('shortener-form');
       const originalUrl = document.getElementById('originalUrl');
-      const customAlias = document.getElementById('customAlias');
       const resultSection = document.getElementById('resultSection');
       const shortUrlInput = document.getElementById('shortUrl');
       const copyBtn = document.getElementById('copyBtn');
@@ -115,8 +108,7 @@
         if (!originalUrl.checkValidity()) return originalUrl.reportValidity();
 
         const payload = {
-          url: originalUrl.value.trim(),
-          alias: customAlias.value.trim() || undefined
+          url: originalUrl.value.trim()
         };
 
         try {
@@ -152,7 +144,6 @@
 
       clearBtn.addEventListener('click', () => {
         originalUrl.value = '';
-        customAlias.value = '';
         shortUrlInput.value = '';
         resultSection.classList.add('d-none');
       });

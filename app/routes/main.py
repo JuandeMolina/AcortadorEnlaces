@@ -30,7 +30,10 @@ def save_urls(urls):
 
 def generate_alias(length=6):
     alphabet = string.ascii_letters + string.digits
-    return "".join(secrets.choice(alphabet) for _ in range(length))
+    alias = ""
+    for _ in range(length):
+        alias += secrets.choice(alphabet)
+    return alias
 
 
 @main.route("/", methods=["GET"])
@@ -43,7 +46,6 @@ def api_shorten():
     # Accept JSON or form data
     data = request.get_json(silent=True) or request.form or {}
     url = (data.get("url") or "").strip()
-    alias = (data.get("alias") or "").strip()
 
     if not url:
         return jsonify({"error": "missing_url"}), 400
@@ -54,19 +56,14 @@ def api_shorten():
 
     urls = load_urls()
 
-    # If alias provided, check availability
-    if alias:
-        if alias in urls:
-            return jsonify({"error": "alias_exists"}), 409
-    else:
-        # generate a unique alias
+    # Generate a unique alias
+    alias = generate_alias(6)
+    attempt = 0
+    while alias in urls and attempt < 5:
         alias = generate_alias(6)
-        attempt = 0
-        while alias in urls and attempt < 5:
-            alias = generate_alias(6)
-            attempt += 1
-        if alias in urls:
-            return jsonify({"error": "could_not_generate_alias"}), 500
+        attempt += 1
+    if alias in urls:
+        return jsonify({"error": "could_not_generate_alias"}), 500
 
     # Save mapping
     urls[alias] = url
