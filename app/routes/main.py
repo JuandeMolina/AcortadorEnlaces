@@ -1,8 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, jsonify
 from pathlib import Path
 import json
-import secrets
-import string
+import random
 
 main = Blueprint("main", __name__)
 
@@ -17,22 +16,22 @@ def load_urls():
     if not DATA_FILE.exists():
         return {}
     try:
-        with DATA_FILE.open("r", encoding="utf-8") as f:
+        with open(DATA_FILE, "r", encoding="utf-8") as f:
             return json.load(f)
     except Exception:
         return {}
 
 
 def save_urls(urls):
-    with DATA_FILE.open("w", encoding="utf-8") as f:
+    with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(urls, f, ensure_ascii=False, indent=2)
 
 
 def generate_alias(length=6):
-    alphabet = string.ascii_letters + string.digits
+    alphabet = "ABCDEFGHIJKLMNPQRSTUVWXYZ0123456789"
     alias = ""
     for _ in range(length):
-        alias += secrets.choice(alphabet)
+        alias += random.choice(alphabet)
     return alias
 
 
@@ -43,7 +42,6 @@ def index():
 
 @main.route("/api/shorten", methods=["POST"])
 def api_shorten():
-    # Accept JSON or form data
     data = request.get_json(silent=True) or request.form or {}
     url = (data.get("url") or "").strip()
 
