@@ -1,0 +1,296 @@
+Guía paso a paso para añadir Flask-SQLAlchemy, Flask-Migrate y autenticación
+
+Objetivo
+- Migrar el almacenamiento desde `data/urls.json` a una base de datos usando `Flask-SQLAlchemy`.
+- Añadir modelos `User` y `URL`.
+- Habilitar migraciones con `Flask-Migrate`.
+- Mantener compatibilidad con los endpoints actuales.
+
+Requisitos previos
+- Python 3.8+ instalado
+- Estar en la carpeta del proyecto (ej: `/home/juandemolinaperales/Escritorio/AcortadorEnlaces`)
+
+1) Crear y activar entorno virtual e instalar dependencias
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install flask flask-sqlalchemy flask-migrate flask-login python-dotenv werkzeug
+# si vas a usar Postgres localmente:
+# pip install psycopg2-binary
+```
+
+Comprueba que los paquetes estão instalados:
+
+```bash
+python -c "import flask, flask_sqlalchemy, flask_migrate, flask_login; print('ok')"
+```
+
+2) Crear `.env` y `config.py`
+
+Crea un archivo `.env` en la raíz con valores por defecto:
+
+```bash
+cat > .env <<EOF
+FLASK_APP=acortadorenlaces.py
+FLASK_ENV=development
+SECRET_KEY=change_this_secret_in_production
+DATABASE_URL=sqlite:///data/app.db
+EOF
+```
+
+Crea `config.py` en la raíz del proyecto con esta configuración:
+
+```python
+# config.py
+import os
+from dotenv import load_dotenv
+from pathlib import Path
+
+load_dotenv()
+
+BASE_DIR = Path(__file__).resolve().parent
+
+class Config:
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', f"sqlite:///{BASE_DIR / 'data' / 'app.db'}")
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+```
+
+3) Inicializar `Flask` app para usar `SQLAlchemy` y `Migrate`
+
+Actualmente `app/__init__.py` contiene algo sencillo. Vamos a convertirlo en fábrica para inicializar extensiones.
+
+Sustituye el contenido de `app/__init__.py` por el siguiente (o adapta si prefieres no usar factory):
+
+```python
+# app/__init__.py
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+db = SQLAlchemy()
+migrate = Migrate()
+
+
+def create_app():
+    app = Flask(__name__)
+    # usa config.py
+    app.config.from_object('config.Config')
+
+    db.init_app(app)
+    migrate.init_app(app, db)
+
+    # importa y registra blueprints/rutas
+    from .routes.main import main as main_bp
+    app.register_blueprint(main_bp)
+
+    return app
+```
+
+Actualiza `acortadorenlaces.py` para usar la fábrica `create_app`:
+
+```python
+# acortadorenlaces.py
+from app import create_app
+
+app = create_app()
+
+if __name__ == '__main__':
+    app.run(debug=True)
+```
+
+4) Crear `app/models.py` con `User` y `URL`
+
+Crea `app/models.py` con el siguiente contenido:
+
+```python
+# app/models.py
+from datetime import datetime
+from . import db
+from werkzeug.security import generate_password_hash, check_password_hash
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(128), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    urls = db.relationship('URL', backref='owner', lazy=True)
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+    def __repr__(self):
+        return f'<User {self.username}>'
+
+class URL(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    alias = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    original_url = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+
+    def __repr__(self):
+        return f'<URL {self.alias} -> {self.original_url}>'
+```
+
+Notas:
+- `alias` se marca `unique=True` y con `index=True` para acelerar búsquedas.
+- Puedes cambiar la longitud del `alias` según tu criterio.
+
+5) Preparar Flask-Migrate y aplicar migraciones
+
+Exporta variable `FLASK_APP` y crea migraciones:
+
+```bash
+export FLASK_APP=acortadorenlaces.py
+flask db init
+flask db migrate -m "create users and urls"
+flask db upgrade
+```
+============================================================================================================================================================================================================================================================================================================
+
+Resultado esperado: se crea la carpeta `migrations/` y la base de datos `data/app.db` (si usas sqlite).
+
+6) Reemplazar lectura/escritura de `data/urls.json` por consultas SQLAlchemy
+
+Modificaciones sugeridas en `app/routes/main.py`:
+- importar `from app import db` y `from app.models import URL`
+- sustituir `load_urls()`/`save_urls()` por consultas y commits.
+
+Ejemplos clave (fragmentos):
+
+POST `/api/shorten` (reemplazo de la sección donde se guardaba en JSON):
+
+```python
+from flask import current_app
+from app import db
+from app.models import URL
+
+# dentro de api_shorten()
+# generar alias como antes
+# antes de guardar, comprobar única en DB
+existing = URL.query.filter_by(alias=alias).first()
+if existing:
+    # reintento de alias o devolver error
+
+new_url = URL(alias=alias, original_url=url, user_id=None)
+try:
+    db.session.add(new_url)
+    db.session.commit()
+except Exception as e:
+    db.session.rollback()
+    return jsonify({"error": "storage_error"}), 500
+
+short_url = request.host_url.rstrip('/') + '/' + alias
+return jsonify({"shortUrl": short_url, "alias": alias}), 201
+```
+
+GET `/<short_id>`:
+
+```python
+@main.route('/<short_id>')
+def redirect_short(short_id):
+    target = URL.query.filter_by(alias=short_id).first()
+    if not target:
+        return 'URL no encontrada', 404
+    return redirect(target.original_url)
+```
+
+7) Añadir autenticación básica con `Flask-Login`
+
+Instalación: ya incluido arriba. Pasos resumidos:
+
+- Inicializar `LoginManager` en `app/__init__.py` y configurarlo.
+- En `app/models.py` añadir los métodos necesarios para `Flask-Login` o usar `UserMixin`.
+
+Ejemplo mínimo de cambios en `app/models.py`:
+
+```python
+from flask_login import UserMixin
+
+class User(UserMixin, db.Model):
+    # ... como antes
+    pass
+```
+
+Crear blueprint `app/auth` con rutas `/auth/register`, `/auth/login`, `/auth/logout`:
+- `register`: crear `User`, `set_password`, `db.session.add` y `commit`.
+- `login`: buscar usuario por `username`, `check_password`, `login_user(user)`.
+
+8) Actualizar frontend
+
+- Añadir enlaces a `Login` y `Register` en `app/templates/index.html`.
+- Si usas sesiones, enviar `fetch` con `credentials: 'include'` cuando llames a endpoints que requieren autenticación.
+
+9) Tests y scripts de ayuda (opcional pero recomendado)
+
+- Crear `tests/` con casos de registro, login, creación de URL, redirección.
+- Crear `scripts/seed_db.py` para poblar con usuarios y URLs de prueba.
+
+10) Limpieza final
+
+- Añade `.env` a `.gitignore`:
+
+```bash
+echo '.env' >> .gitignore
+git add .gitignore
+git commit -m "Ignore .env"
+```
+
+- Elimina `data/urls.json` cuando estés seguro de que todo funciona con la DB:
+
+```bash
+git rm data/urls.json
+git commit -m "Remove json store after migrating to DB"
+```
+
+Comandos útiles resumen
+
+```bash
+# activar venv
+source .venv/bin/activate
+
+# instalar dependencias
+pip install flask flask-sqlalchemy flask-migrate flask-login python-dotenv werkzeug
+
+# preparar entorno
+cat > .env <<EOF
+FLASK_APP=acortadorenlaces.py
+FLASK_ENV=development
+SECRET_KEY=change_this
+DATABASE_URL=sqlite:///data/app.db
+EOF
+
+# exportar variable y migraciones
+export FLASK_APP=acortadorenlaces.py
+flask db init
+flask db migrate -m "create users and urls"
+flask db upgrade
+
+# ejecutar app
+flask run
+# o
+python acortadorenlaces.py
+```
+
+Notas y recomendaciones
+
+- La migración a DB te da integridad (unicidad, índices) y evita corrupciones por concurrencia.
+- Mantén backups antes de borrar `data/urls.json`.
+- Para producción usa Postgres (cambia `DATABASE_URL`) y nunca subas `.env` con secrets.
+- Considera añadir `alembic`/`flask-migrate` hooks y scripts para deploy.
+
+Si quieres, puedo:
+- Implementar los cambios en código (crear `app/models.py`, modificar `app/__init__.py`, cambiar `routes/main.py`) y aplicar las migraciones aquí.
+- O guiarte paso a paso mientras ejecutas los comandos en tu máquina; dime qué prefieres y comienzo con la opción escogida.
