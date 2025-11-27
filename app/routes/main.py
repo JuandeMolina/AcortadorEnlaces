@@ -1,33 +1,18 @@
-from flask import Blueprint, render_template, request, redirect, jsonify
-from pathlib import Path
-import json
 import random
+from flask import Blueprint, render_template, request, redirect, jsonify
+from flask_login import current_user, login_required
+from app import db
+from app.models import URL
+import sqlalchemy
 
 main = Blueprint("main", __name__)
 
-# File-based storage (JSON) for demo/local usage
-BASE_DIR = Path(__file__).resolve().parents[2]
-DATA_DIR = BASE_DIR / "data"
-DATA_DIR.mkdir(exist_ok=True)
-DATA_FILE = DATA_DIR / "urls.json"
-
-
-def load_urls():
-    if not DATA_FILE.exists():
-        return {}
-    try:
-        with open(DATA_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
-        return {}
-
-
-def save_urls(urls):
-    with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(urls, f, ensure_ascii=False, indent=2)
-
 
 def generate_alias(length=6):
+    """
+    Genera un alias aleatorio de 6 caracteres usando mayúsculas y dígitos.
+    Por seguridad, se recomienda usar secrets.choice() en lugar de random.choice()
+    """
     alphabet = "ABCDEFGHIJKLMNPQRSTUVWXYZ0123456789"
     alias = ""
     for _ in range(length):
@@ -42,32 +27,37 @@ def index():
 
 @main.route("/api/shorten", methods=["POST"])
 def api_shorten():
+    """
+    Endpoint para acortar URLs.
+    Crea un alias único y lo guarda en la BD asociado al usuario (si está autenticado)
+    """
     data = request.get_json(silent=True) or request.form or {}
     url = (data.get("url") or "").strip()
 
     if not url:
         return jsonify({"error": "missing_url"}), 400
 
-    # Basic validation: require http/https
+    # Validación básica: requiere http:// o https://
     if not (url.startswith("http://") or url.startswith("https://")):
         return jsonify({"error": "invalid_url"}), 400
 
-    urls = load_urls()
-
-    # Generate a unique alias
+    # Generar un alias único (comprobar colisiones en BD)
     alias = generate_alias(6)
     attempt = 0
-    while alias in urls and attempt < 5:
+    while URL.query.filter_by(alias=alias).first() is not None and attempt < 5:
         alias = generate_alias(6)
         attempt += 1
-    if alias in urls:
+    if URL.query.filter_by(alias=alias).first() is not None:
         return jsonify({"error": "could_not_generate_alias"}), 500
 
-    # Save mapping
-    urls[alias] = url
+    # Guardar en BD: si el usuario está autenticado, asociar la URL a su cuenta
+    user_id = current_user.id if current_user.is_authenticated else None
+    new_url = URL(alias=alias, original_url=url, user_id=user_id)
     try:
-        save_urls(urls)
-    except Exception:
+        db.session.add(new_url)
+        db.session.commit()
+    except sqlalchemy.exc.SQLAlchemyError:
+        db.session.rollback()
         return jsonify({"error": "storage_error"}), 500
 
     short_url = request.host_url.rstrip("/") + "/" + alias
@@ -76,8 +66,43 @@ def api_shorten():
 
 @main.route("/<short_id>", methods=["GET"])
 def redirect_short(short_id):
-    urls = load_urls()
-    target = urls.get(short_id)
+    """
+    Ruta de redirección: redirige desde http://host/alias a la URL original
+    """
+    target = URL.query.filter_by(alias=short_id).first()
     if not target:
         return "URL no encontrada", 404
-    return redirect(target)
+    return redirect(target.original_url)
+
+
+@main.route("/dashboard", methods=["GET"])
+@login_required  # Solo accesible si el usuario está autenticado
+def dashboard():
+    """
+    Panel de control del usuario: muestra sus URLs acortadas
+    """
+    # Obtener todas las URLs del usuario autenticado
+    urls = URL.query.filter_by(user_id=current_user.id).all()
+    return render_template("dashboard.html", urls=urls)
+
+
+@main.route("/api/urls", methods=["GET"])
+@login_required  # Solo accesible si el usuario está autenticado
+def get_user_urls():
+    """
+    API endpoint para obtener las URLs del usuario autenticado en JSON
+    """
+    urls = URL.query.filter_by(user_id=current_user.id).all()
+    return (
+        jsonify(
+            [
+                {
+                    "alias": url.alias,
+                    "original_url": url.original_url,
+                    "created_at": url.created_at.isoformat(),
+                }
+                for url in urls
+            ]
+        ),
+        200,
+    )

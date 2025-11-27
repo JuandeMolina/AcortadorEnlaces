@@ -1,14 +1,15 @@
 from datetime import datetime
 from . import db
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin
 
 
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+# Modelo User con soporte para Flask-Login
+class User(UserMixin, db.Model):
+    id: int = db.Column(db.Integer, primary_key=True)
+    username: str = db.Column(db.String(80), unique=True, nullable=False)
+    email: str = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash: int = db.Column(db.String(128), nullable=False)
 
     urls = db.relationship("URL", backref="owner", lazy=True)
 
@@ -18,16 +19,20 @@ class User(db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    # Generate a legible representation of the User object
     def __repr__(self):
         return f"<User {self.username}>"
 
 
+# Modelo URL: almacena los enlaces acortados
 class URL(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    alias = db.Column(db.String(6), unique=True, nullable=False)
-    original_url = db.Column(db.Text, nullable=False)
+    id: int = db.Column(db.Integer, primary_key=True)
+    alias: str = db.Column(db.String(6), unique=True, nullable=False, index=True)
+    original_url: str = db.Column(db.Text, nullable=False)
+    # Referencia al usuario propietario (nullable para permitir URLs anónimas)
+    user_id: int = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
+    # Marca de tiempo de creación
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
 
     def __repr__(self):
         return f"<URL {self.alias} -> {self.original_url}>"

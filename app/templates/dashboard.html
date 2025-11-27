@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mi panel - AcortadorEnlaces</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f6f9ff 0%, #f0f7f4 100%);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        }
+        .card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(20, 30, 50, 0.08);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">AcortadorEnlaces</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <span class="navbar-text me-3">Hola, <strong>{{ current_user.username }}</strong></span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5" style="max-width: 900px;">
+        <h2 class="mb-4">Mi panel de control</h2>
+
+        <!-- Formulario para crear nuevos enlaces acortados -->
+        <div class="card p-4 mb-4">
+            <h5>Crear nuevo enlace acortado</h5>
+            <form id="shortener-form">
+                <div class="mb-3">
+                    <label for="originalUrl" class="form-label">URL a acortar</label>
+                    <input type="url" class="form-control" id="originalUrl" placeholder="https://ejemplo.com/mi-larga-url" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Acortar</button>
+            </form>
+
+            <div id="resultSection" class="mt-3 d-none">
+                <label for="shortUrl" class="form-label">URL corta creada</label>
+                <div class="input-group">
+                    <input type="text" id="shortUrl" class="form-control" readonly>
+                    <button class="btn btn-outline-secondary" id="copyBtn" type="button">Copiar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de URLs del usuario -->
+        <div class="card p-4">
+            <h5>Mis enlaces acortados</h5>
+            {% if urls %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Alias</th>
+                                <th>URL original</th>
+                                <th>Enlace corto</th>
+                                <th>Creado el</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for url in urls %}
+                                <tr>
+                                    <td><code>{{ url.alias }}</code></td>
+                                    <td><small>{{ url.original_url[:50] }}...</small></td>
+                                    <td>
+                                        <a href="{{ request.host_url.rstrip('/') }}/{{ url.alias }}" target="_blank">
+                                            {{ request.host_url.rstrip('/') }}/{{ url.alias }}
+                                        </a>
+                                    </td>
+                                    <td><small>{{ url.created_at.strftime('%d/%m/%Y %H:%M') }}</small></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">No tienes enlaces acortados aún. ¡Crea uno arriba!</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Manejo del formulario de acortamiento en el dashboard
+        const form = document.getElementById('shortener-form');
+        const originalUrl = document.getElementById('originalUrl');
+        const resultSection = document.getElementById('resultSection');
+        const shortUrlInput = document.getElementById('shortUrl');
+        const copyBtn = document.getElementById('copyBtn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!originalUrl.checkValidity()) return originalUrl.reportValidity();
+
+            const payload = { url: originalUrl.value.trim() };
+
+            try {
+                // Enviar fetch CON credenciales para mantener la sesión autenticada
+                const res = await fetch('/api/shorten', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                    credentials: 'include'  // Incluir cookies de sesión
+                });
+
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    alert(err.error || 'Error al acortar la URL');
+                    return;
+                }
+
+                const data = await res.json();
+                shortUrlInput.value = data.shortUrl;
+                resultSection.classList.remove('d-none');
+                originalUrl.value = '';
+
+                // Recargar la página para ver el nuevo enlace en la lista
+                setTimeout(() => location.reload(), 2000);
+            } catch (err) {
+                alert('Error de red: ' + err.message);
+            }
+        });
+
+        copyBtn.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(shortUrlInput.value);
+                copyBtn.textContent = 'Copiado!';
+                setTimeout(() => copyBtn.textContent = 'Copiar', 1500);
+            } catch (err) {
+                alert('No se pudo copiar automáticamente. Selecciona manualmente.');
+            }
+        });
+    </script>
+</body>
+</html>

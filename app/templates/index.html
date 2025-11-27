@@ -33,7 +33,38 @@
   </head>
   <body>
 
-    <main class="container p-3" style="max-width: 920px;">
+    <!-- Barra de navegación con enlaces de autenticación -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="{{ url_for('main.index') }}">AcortadorEnlaces</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            {% if current_user.is_authenticated %}
+              <!-- Usuario autenticado: mostrar dashboard y logout -->
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('main.dashboard') }}">Mi dashboard</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('auth.logout') }}">Cerrar sesión ({{ current_user.username }})</a>
+              </li>
+            {% else %}
+              <!-- Usuario no autenticado: mostrar login y register -->
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('auth.login') }}">Iniciar sesión</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('auth.register') }}">Registrarse</a>
+              </li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container p-3" style="max-width: 920px; margin-top: 70px;">
       <div class="row g-4 align-items-center">
         <div class="col-12 col-lg-6">
           <div class="card p-4">
@@ -101,7 +132,8 @@
       const copyBtn = document.getElementById('copyBtn');
       const clearBtn = document.getElementById('clearBtn');
 
-      // Envía la petición al backend para acortar y persistir en data/urls.json (localhost demo)
+      // Envía la petición al backend para acortar
+      // credentials: 'include' mantiene la sesión autenticada si el usuario está logeado
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         if (!originalUrl.checkValidity()) return originalUrl.reportValidity();
@@ -115,6 +147,7 @@
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
+            credentials: 'include'  // Incluir cookies de sesión para autenticación
           });
 
           if (!res.ok) {
