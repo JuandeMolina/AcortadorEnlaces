@@ -1,18 +1,14 @@
-import random
 from flask import Blueprint, render_template, request, redirect, jsonify
 from flask_login import current_user, login_required
 from app import db
 from app.models import URL
+import random
 import sqlalchemy
 
 main = Blueprint("main", __name__)
 
 
 def generate_alias(length=6):
-    """
-    Genera un alias aleatorio de 6 caracteres usando mayúsculas y dígitos.
-    Por seguridad, se recomienda usar secrets.choice() en lugar de random.choice()
-    """
     alphabet = "ABCDEFGHIJKLMNPQRSTUVWXYZ0123456789"
     alias = ""
     for _ in range(length):
@@ -66,9 +62,6 @@ def api_shorten():
 
 @main.route("/<short_id>", methods=["GET"])
 def redirect_short(short_id):
-    """
-    Ruta de redirección: redirige desde http://host/alias a la URL original
-    """
     target = URL.query.filter_by(alias=short_id).first()
     if not target:
         return "URL no encontrada", 404
