@@ -2,17 +2,18 @@ from flask import Blueprint, render_template, request, redirect, jsonify
 from flask_login import current_user, login_required
 from app import db
 from app.models import URL
-import random
+from secrets import choice
 import sqlalchemy
+import string
 
 main = Blueprint("main", __name__)
 
 
 def generate_alias(length=6):
-    alphabet = "ABCDEFGHIJKLMNPQRSTUVWXYZ0123456789"
+    alphabet = string.ascii_uppercase + string.digits
     alias = ""
     for _ in range(length):
-        alias += random.choice(alphabet)
+        alias += choice(alphabet)
     return alias
 
 
@@ -99,3 +100,28 @@ def get_user_urls():
         ),
         200,
     )
+
+
+@main.route("/api/urls/<int:url_id>", methods=["DELETE"])
+@login_required
+def delete_user_url(url_id):
+    """
+    Eliminar una URL perteneciente al usuario autenticado.
+    Endpoint: DELETE /api/urls/<url_id>
+    """
+    target = URL.query.get(url_id)
+    if not target:
+        return jsonify({"error": "not_found"}), 404
+
+    # Solo el propietario puede borrar
+    if target.user_id != current_user.id:
+        return jsonify({"error": "forbidden"}), 403
+
+    try:
+        db.session.delete(target)
+        db.session.commit()
+    except sqlalchemy.exc.SQLAlchemyError:
+        db.session.rollback()
+        return jsonify({"error": "delete_failed"}), 500
+
+    return jsonify({"success": True}), 200

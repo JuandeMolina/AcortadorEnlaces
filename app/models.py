@@ -9,7 +9,7 @@ class User(UserMixin, db.Model):
     id: int = db.Column(db.Integer, primary_key=True)
     username: str = db.Column(db.String(80), unique=True, nullable=False)
     email: str = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash: int = db.Column(db.String(128), nullable=False)
+    password_hash: str = db.Column(db.String(128), nullable=False)
 
     urls = db.relationship("URL", backref="owner", lazy=True)
 

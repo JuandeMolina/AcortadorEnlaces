@@ -83,7 +83,7 @@ def login():
         # Autenticar al usuario
         login_user(
             user, remember=True
-        )  # remember=True mantiene sesi\u00f3n m\u00e1s tiempo
+        )  # remember=True mantiene sesión más tiempo
         return redirect(url_for("main.index"))
 
     # GET: mostrar formulario de login
@@ -91,7 +91,7 @@ def login():
 
 
 @auth.route("/logout", methods=["GET", "POST"])
-@login_required  # Protecci\u00f3n: s\u00f3lo accesible si est\u00e1 autenticado
+@login_required  # Si el usuario no está autenticado, lo redirige al login
 def logout():
     """
     Ruta para cerrar sesi\u00f3n del usuario.
