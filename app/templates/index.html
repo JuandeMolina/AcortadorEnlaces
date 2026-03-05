@@ -186,11 +186,23 @@
 
       pasteBtn.addEventListener('click', async () => {
         try {
+          // Verificar que la API Clipboard está disponible
+          if (!navigator.clipboard) {
+            throw new Error('API no disponible');
+          }
           const text = await navigator.clipboard.readText();
-          originalUrl.value = text;
-          originalUrl.focus();
+          if (text.trim()) {
+            originalUrl.value = text.trim();
+            originalUrl.focus();
+          } else {
+            alert('El portapapeles está vacío.');
+          }
         } catch (err) {
-          alert('No se pudo leer el portapapeles. Asegúrate de que tienes permisos.');
+          // Fallback: mostrar instrucción más clara
+          const msg = err.name === 'NotAllowedError' 
+            ? 'Permiso denegado. Usa Ctrl+V o Cmd+V para pegar manualmente.'
+            : 'No se pudo acceder al portapapeles. Usa Ctrl+V o Cmd+V para pegar.';
+          alert(msg);
         }
       });
     </script>
