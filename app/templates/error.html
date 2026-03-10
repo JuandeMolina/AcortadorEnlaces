@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}503 - Error del servidor{% endblock %}
+{% block title %}{{ code }} - {{ title }}{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -93,7 +93,7 @@
         }
     }
 
-    /* Big 503 number */
+    /* Big error number */
     .error-number {
         font-family: 'DM Serif Display', Georgia, serif;
         font-size: clamp(88px, 20vw, 120px);
@@ -140,7 +140,7 @@
         }
     }
 
-    .error-title {
+    .title {
         font-family: 'DM Serif Display', Georgia, serif;
         font-size: 1.6rem;
         color: #1e293b;
@@ -148,7 +148,7 @@
         letter-spacing: -0.3px;
     }
 
-    .error-description {
+    .description {
         font-family: 'DM Sans', system-ui, sans-serif;
         color: #64748b;
         font-size: 0.97rem;
@@ -204,15 +204,8 @@
     .brand-badge-icon {
         width: 28px;
         height: 28px;
-        background: linear-gradient(135deg, #3b82f6, #10b981);
         border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #fff;
-        font-weight: 700;
-        font-size: 0.7rem;
-        font-family: 'DM Sans', system-ui, sans-serif;
+        object-fit: contain;
     }
 
     .brand-badge-text {
@@ -292,20 +285,15 @@
 
 <div class="error-card">
     <a href="{{ url_for('main.index') }}" class="brand-badge">
-        <div class="brand-badge-icon">AE</div>
+        <img src="{{ url_for('static', filename='img/icon.svg') }}" alt="NanoLink" class="brand-badge-icon">
         <span class="brand-badge-text">NanoLink</span>
     </a>
 
-    <div class="error-number">503</div>
+    <div class="error-number">{{ code }}</div>
     <div class="error-divider"></div>
 
-    <h1 class="error-title">Estamos al límite</h1>
-    <p class="error-description">
-        Te seré sincero. Estamos durmiendo una siesta.<br>
-        Será mejor que no me despiertes.<br>
-        Prometo que me arreglarán cuanto antes.
-
-    </p>
+    <h1 class="title">{{ title }}</h1>
+    <p class="description">{{ description }}</p>
 
     <a href="{{ url_for('main.index') }}" class="btn-home">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"

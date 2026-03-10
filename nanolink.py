@@ -16,4 +16,4 @@ app = create_app()
 
 if __name__ == "__main__":
     setup_app()
-    app.run(host="0.0.0.0", port=5003, debug=True, use_reloader=False)
+    app.run(host="0.0.0.0", port=5003, debug=False, use_reloader=False)

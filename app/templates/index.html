@@ -4,440 +4,435 @@
 
 {% block extra_head %}
 <style>
-  .index-wrapper {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    padding: 80px 24px 40px;
-  }
-
-  .index-inner {
-    width: 100%;
-    max-width: 960px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 32px;
-    align-items: center;
-  }
-
-  /* ── Shortener card ── */
-  .shortener-card {
-    padding: 40px 36px 36px;
-  }
-
-  .card-header {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 28px;
-  }
-
-  .card-icon {
-    width: 46px;
-    height: 46px;
-    background: var(--grad);
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-weight: 700;
-    font-size: 0.78rem;
-    font-family: var(--font-body);
-    flex-shrink: 0;
-    box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
-  }
-
-  .card-header-text .title {
-    font-family: var(--font-body);
-    font-weight: 700;
-    font-size: 1rem;
-    color: var(--text-dark);
-    letter-spacing: -0.2px;
-  }
-
-  .card-header-text .subtitle {
-    font-size: 0.82rem;
-    color: var(--text-muted);
-    margin-top: 1px;
-  }
-
-  /* ── Result section ── */
-  .result-section {
-    margin-top: 20px;
-    padding: 16px;
-    background: rgba(59, 130, 246, 0.04);
-    border: 1.5px dashed rgba(59, 130, 246, 0.2);
-    border-radius: var(--radius-md);
-    animation: slideUp .35s var(--ease-spring) both;
-  }
-
-  .result-section label {
-    color: var(--blue);
-    font-size: 0.78rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 8px;
-  }
-
-  /* ── Hero column ── */
-  .hero-col {
-    padding: 20px 12px;
-  }
-
-  .hero-eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    font-size: 0.78rem;
-    font-weight: 700;
-    color: var(--green);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    margin-bottom: 18px;
-  }
-
-  .hero-eyebrow-dot {
-    width: 7px;
-    height: 7px;
-    background: var(--green);
-    border-radius: 50%;
-    animation: pulse 2.5s ease-in-out infinite;
-  }
-
-  @keyframes pulse {
-
-    0%,
-    100% {
-      transform: scale(1);
-      opacity: 1;
-    }
-
-    50% {
-      transform: scale(1.4);
-      opacity: 0.6;
-    }
-  }
-
-  .hero-title {
-    font-family: var(--font-display);
-    font-size: clamp(2rem, 4vw, 2.8rem);
-    line-height: 1.15;
-    color: var(--text-dark);
-    margin-bottom: 16px;
-    letter-spacing: -0.5px;
-  }
-
-  .hero-title em {
-    font-style: italic;
-    background: var(--grad);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
-  .hero-desc {
-    font-size: 0.97rem;
-    color: var(--text-muted);
-    line-height: 1.7;
-    max-width: 360px;
-    margin-bottom: 32px;
-  }
-
-  /* Feature pills */
-  .feature-list {
-    display: flex;
-    flex-direction: column;
-    gap: 11px;
-  }
-
-  .feature-item {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    font-size: 0.88rem;
-    color: var(--text-mid);
-    font-weight: 500;
-  }
-
-  .feature-icon {
-    width: 30px;
-    height: 30px;
-    border-radius: 9px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    font-size: 15px;
-  }
-
-  .feature-icon-blue {
-    background: rgba(59, 130, 246, 0.1);
-  }
-
-  .feature-icon-green {
-    background: rgba(16, 185, 129, 0.1);
-  }
-
-  .feature-icon-amber {
-    background: rgba(245, 158, 11, 0.1);
-  }
-
-  /* ── Form actions ── */
-  .form-actions {
-    display: flex;
-    gap: 8px;
-    margin-top: 4px;
-  }
-
-  /* ── Auth CTA below card (logged-out) ── */
-  .auth-hint {
-    margin-top: 14px;
-    font-size: 0.82rem;
-    color: var(--text-light);
-    text-align: center;
-  }
-
-  .auth-hint a {
-    color: var(--blue);
-    font-weight: 600;
-  }
-
-  /* Responsive */
-  @media (max-width: 760px) {
-    .index-inner {
-      grid-template-columns: 1fr;
-    }
-
-    .hero-col {
-      display: none;
-    }
-
     .index-wrapper {
-      padding-top: 72px;
-      align-items: flex-start;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        padding: 80px 24px 40px;
     }
 
-    .shortener-card {
-      padding: 28px 22px;
+    .index-inner {
+        width: 100%;
+        max-width: 960px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+        align-items: center;
     }
-  }
+
+    /* ── Shortener card ── */
+    .shortener-card {
+        padding: 40px 36px 36px;
+    }
+
+    .card-header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 28px;
+    }
+
+    .card-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        object-fit: contain;
+        flex-shrink: 0;
+        box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+    }
+
+    .card-header-text .title {
+        font-family: var(--font-body);
+        font-weight: 700;
+        font-size: 1rem;
+        color: var(--text-dark);
+        letter-spacing: -0.2px;
+    }
+
+    .card-header-text .subtitle {
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        margin-top: 1px;
+    }
+
+    /* ── Result section ── */
+    .result-section {
+        margin-top: 20px;
+        padding: 16px;
+        background: rgba(59, 130, 246, 0.04);
+        border: 1.5px dashed rgba(59, 130, 246, 0.2);
+        border-radius: var(--radius-md);
+        animation: slideUp .35s var(--ease-spring) both;
+    }
+
+    .result-section label {
+        color: var(--blue);
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+    }
+
+    /* ── Hero column ── */
+    .hero-col {
+        padding: 20px 12px;
+    }
+
+    .hero-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--green);
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin-bottom: 18px;
+    }
+
+    .hero-eyebrow-dot {
+        width: 7px;
+        height: 7px;
+        background: var(--green);
+        border-radius: 50%;
+        animation: pulse 2.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+        0%,
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        50% {
+            transform: scale(1.4);
+            opacity: 0.6;
+        }
+    }
+
+    .hero-title {
+        font-family: var(--font-display);
+        font-size: clamp(2rem, 4vw, 2.8rem);
+        line-height: 1.15;
+        color: var(--text-dark);
+        margin-bottom: 16px;
+        letter-spacing: -0.5px;
+    }
+
+    .hero-title em {
+        font-style: italic;
+        background: var(--grad);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .hero-desc {
+        font-size: 0.97rem;
+        color: var(--text-muted);
+        line-height: 1.7;
+        max-width: 360px;
+        margin-bottom: 32px;
+    }
+
+    /* Feature pills */
+    .feature-list {
+        display: flex;
+        flex-direction: column;
+        gap: 11px;
+    }
+
+    .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        font-size: 0.88rem;
+        color: var(--text-mid);
+        font-weight: 500;
+    }
+
+    .feature-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 15px;
+    }
+
+    .feature-icon-blue {
+        background: rgba(59, 130, 246, 0.1);
+    }
+
+    .feature-icon-green {
+        background: rgba(16, 185, 129, 0.1);
+    }
+
+    .feature-icon-amber {
+        background: rgba(245, 158, 11, 0.1);
+    }
+
+    /* ── Form actions ── */
+    .form-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 4px;
+    }
+
+    /* ── Auth CTA below card (logged-out) ── */
+    .auth-hint {
+        margin-top: 14px;
+        font-size: 0.82rem;
+        color: var(--text-light);
+        text-align: center;
+    }
+
+    .auth-hint a {
+        color: var(--blue);
+        font-weight: 600;
+    }
+
+    /* Responsive */
+    @media (max-width: 760px) {
+        .index-inner {
+            grid-template-columns: 1fr;
+        }
+
+        .hero-col {
+            display: none;
+        }
+
+        .index-wrapper {
+            padding-top: 72px;
+            align-items: flex-start;
+        }
+
+        .shortener-card {
+            padding: 28px 22px;
+        }
+    }
 </style>
 {% endblock %}
 
 {% block nav %}
 <nav class="navbar anim-slide-up">
-  <a class="navbar-brand" href="{{ url_for('main.index') }}">
-    <div class="navbar-logo">AE</div>
-    <span class="navbar-name">NanoLink</span>
-  </a>
-  <div class="navbar-spacer"></div>
-  <ul class="navbar-nav">
-    {% if current_user.is_authenticated %}
-    <li><a class="nav-link" href="{{ url_for('main.dashboard') }}">Mi dashboard</a></li>
-    <li>
-      <a href="{{ url_for('auth.logout') }}" class="btn btn-ghost btn-sm">
-        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-        </svg>
-        {{ current_user.username }}
-      </a>
-    </li>
-    {% else %}
-    <li><a class="nav-link" href="{{ url_for('auth.login') }}">Iniciar sesión</a></li>
-    <li>
-      <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-sm">
-        Registrarse
-      </a>
-    </li>
-    {% endif %}
-  </ul>
+    <a class="navbar-brand" href="{{ url_for('main.index') }}">
+        <img class="navbar-logo" src="{{ url_for('static', filename='img/icon.svg') }}" alt="NanoLink">
+        <span class="navbar-name">NanoLink</span>
+    </a>
+    <div class="navbar-spacer"></div>
+    <ul class="navbar-nav">
+        {% if current_user.is_authenticated %}
+        <li><a class="nav-link" href="{{ url_for('main.dashboard') }}">Mi dashboard</a></li>
+        <li>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-ghost btn-sm">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                {{ current_user.username }}
+            </a>
+        </li>
+        {% else %}
+        <li><a class="nav-link" href="{{ url_for('auth.login') }}">Iniciar sesión</a></li>
+        <li>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-sm">
+                Registrarse
+            </a>
+        </li>
+        {% endif %}
+    </ul>
 </nav>
 {% endblock %}
 
 {% block content %}
 <div class="index-wrapper">
-  <div class="index-inner">
+    <div class="index-inner">
 
-    <!-- ── Left: shortener card ── -->
-    <div class="shortener-card card anim-slide-up anim-delay-1">
-      <div class="card-header">
-        <div class="card-icon">AE</div>
-        <div class="card-header-text">
-          <div class="title">NanoLink</div>
-          <div class="subtitle">Corta tus enlaces en segundos</div>
+        <!-- ── Left: shortener card ── -->
+        <div class="shortener-card card anim-slide-up anim-delay-1">
+            <div class="card-header">
+                <img src="{{ url_for('static', filename='img/icon.svg') }}" alt="NanoLink" class="card-icon">
+                <div class="card-header-text">
+                    <div class="title">NanoLink</div>
+                    <div class="subtitle">Corta tus enlaces en segundos</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="originalUrl">URL a acortar</label>
+                <div class="input-group">
+                    <input type="url" id="originalUrl" placeholder="https://ejemplo.com/mi-larga-url" required>
+                    <button class="btn btn-icon" id="pasteBtn" type="button" title="Pegar desde portapapeles">
+                        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                            stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="form-note">Pega aquí la URL larga que quieres acortar.</div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" id="shortenBtn" class="btn btn-primary">
+                    <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                        stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101" />
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M14.828 14.828a4 4 0 015.656 0l.828.828a4 4 0 01-5.656 5.656l-1.1-1.1" />
+                    </svg>
+                    Acortar
+                </button>
+                <button type="button" id="clearBtn" class="btn btn-ghost">Limpiar</button>
+            </div>
+
+            <div id="resultSection" class="result-section d-none">
+                <label>Enlace acortado</label>
+                <div class="input-group">
+                    <input type="text" id="shortUrl" readonly>
+                    <button class="btn btn-primary btn-sm" id="copyBtn" type="button">Copiar</button>
+                </div>
+            </div>
+
+            {% if not current_user.is_authenticated %}
+            <div class="auth-hint">
+                <a href="{{ url_for('auth.register') }}">Regístrate</a> para guardar y gestionar tus enlaces.
+            </div>
+            {% endif %}
         </div>
-      </div>
 
-      <div class="form-group">
-        <label for="originalUrl">URL a acortar</label>
-        <div class="input-group">
-          <input type="url" id="originalUrl" placeholder="https://ejemplo.com/mi-larga-url" required>
-          <button class="btn btn-icon" id="pasteBtn" type="button" title="Pegar desde portapapeles">
-            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-          </button>
+        <!-- ── Right: hero ── -->
+        <div class="hero-col">
+            <div class="anim-slide-up anim-delay-2">
+                <div class="hero-eyebrow">
+                    <div class="hero-eyebrow-dot"></div>
+                    Rápido · Sencillo · Seguro
+                </div>
+                <h1 class="hero-title">
+                    Enlaces pequeños<br>
+                    para un mundo <em>enorme.</em>
+                </h1>
+                <p class="hero-desc">
+                    Acorta cualquier URL en menos de un segundo.
+                    Regístrate para guardar, organizar y gestionar todos tus enlaces desde un panel propio.
+                </p>
+
+                <div class="feature-list">
+                    <div class="feature-item anim-slide-up anim-delay-2">
+                        <div class="feature-icon feature-icon-blue">⚡</div>
+                        Acortado instantáneo sin registro
+                    </div>
+                    <div class="feature-item anim-slide-up anim-delay-3">
+                        <div class="feature-icon feature-icon-green">📋</div>
+                        Copia con un clic
+                    </div>
+                    <div class="feature-item anim-slide-up anim-delay-4">
+                        <div class="feature-icon feature-icon-amber">🗂️</div>
+                        Panel de gestión para usuarios registrados
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="form-note">Pega aquí la URL larga que quieres acortar.</div>
-      </div>
 
-      <div class="form-actions">
-        <button type="button" id="shortenBtn" class="btn btn-primary">
-          <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101" />
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M14.828 14.828a4 4 0 015.656 0l.828.828a4 4 0 01-5.656 5.656l-1.1-1.1" />
-          </svg>
-          Acortar
-        </button>
-        <button type="button" id="clearBtn" class="btn btn-ghost">Limpiar</button>
-      </div>
-
-      <div id="resultSection" class="result-section d-none">
-        <label>Enlace acortado</label>
-        <div class="input-group">
-          <input type="text" id="shortUrl" readonly>
-          <button class="btn btn-primary btn-sm" id="copyBtn" type="button">Copiar</button>
-        </div>
-      </div>
-
-      {% if not current_user.is_authenticated %}
-      <div class="auth-hint">
-        <a href="{{ url_for('auth.register') }}">Regístrate</a> para guardar y gestionar tus enlaces.
-      </div>
-      {% endif %}
     </div>
-
-    <!-- ── Right: hero ── -->
-    <div class="hero-col">
-      <div class="anim-slide-up anim-delay-2">
-        <div class="hero-eyebrow">
-          <div class="hero-eyebrow-dot"></div>
-          Rápido · Sencillo · Seguro
-        </div>
-        <h1 class="hero-title">
-          Enlaces pequeños<br>
-          para un mundo <em>enorme.</em>
-        </h1>
-        <p class="hero-desc">
-          Acorta cualquier URL en menos de un segundo.
-          Regístrate para guardar, organizar y gestionar todos tus enlaces desde un panel propio.
-        </p>
-
-        <div class="feature-list">
-          <div class="feature-item anim-slide-up anim-delay-2">
-            <div class="feature-icon feature-icon-blue">⚡</div>
-            Acortado instantáneo sin registro
-          </div>
-          <div class="feature-item anim-slide-up anim-delay-3">
-            <div class="feature-icon feature-icon-green">📋</div>
-            Copia con un clic
-          </div>
-          <div class="feature-item anim-slide-up anim-delay-4">
-            <div class="feature-icon feature-icon-amber">🗂️</div>
-            Panel de gestión para usuarios registrados
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-  const originalUrl = document.getElementById('originalUrl');
-  const resultSection = document.getElementById('resultSection');
-  const shortUrlInput = document.getElementById('shortUrl');
-  const shortenBtn = document.getElementById('shortenBtn');
-  const copyBtn = document.getElementById('copyBtn');
-  const clearBtn = document.getElementById('clearBtn');
-  const pasteBtn = document.getElementById('pasteBtn');
+    const originalUrl = document.getElementById('originalUrl');
+    const resultSection = document.getElementById('resultSection');
+    const shortUrlInput = document.getElementById('shortUrl');
+    const shortenBtn = document.getElementById('shortenBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const pasteBtn = document.getElementById('pasteBtn');
 
-  async function shorten() {
-    const url = originalUrl.value.trim();
-    if (!url) { originalUrl.focus(); return; }
-    if (!originalUrl.checkValidity()) { originalUrl.reportValidity(); return; }
+    async function shorten() {
+        const url = originalUrl.value.trim();
+        if (!url) { originalUrl.focus(); return; }
+        if (!originalUrl.checkValidity()) { originalUrl.reportValidity(); return; }
 
-    shortenBtn.disabled = true;
-    shortenBtn.textContent = 'Acortando…';
+        shortenBtn.disabled = true;
+        shortenBtn.textContent = 'Acortando…';
 
-    try {
-      const res = await fetch('/api/shorten', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url }),
-        credentials: 'include'
-      });
+        try {
+            const res = await fetch('/api/shorten', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url }),
+                credentials: 'include'
+            });
 
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        showError(err.error || 'Error al acortar la URL');
-        return;
-      }
-      const data = await res.json();
-      shortUrlInput.value = data.shortUrl;
-      resultSection.classList.remove('d-none');
-    } catch (err) {
-      showError('Error de red: ' + err.message);
-    } finally {
-      shortenBtn.disabled = false;
-      shortenBtn.innerHTML = `<svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101"/><path stroke-linecap="round" stroke-linejoin="round" d="M14.828 14.828a4 4 0 015.656 0l.828.828a4 4 0 01-5.656 5.656l-1.1-1.1"/></svg> Acortar`;
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                showError(err.error || 'Error al acortar la URL');
+                return;
+            }
+            const data = await res.json();
+            shortUrlInput.value = data.shortUrl;
+            resultSection.classList.remove('d-none');
+        } catch (err) {
+            showError('Error de red: ' + err.message);
+        } finally {
+            shortenBtn.disabled = false;
+            shortenBtn.innerHTML = `<svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101"/><path stroke-linecap="round" stroke-linejoin="round" d="M14.828 14.828a4 4 0 015.656 0l.828.828a4 4 0 01-5.656 5.656l-1.1-1.1"/></svg> Acortar`;
+        }
     }
-  }
 
-  function showError(msg) {
-    // Inline shake + message instead of alert
-    originalUrl.style.borderColor = '#ef4444';
-    originalUrl.style.boxShadow = '0 0 0 3px rgba(239,68,68,0.12)';
-    setTimeout(() => {
-      originalUrl.style.borderColor = '';
-      originalUrl.style.boxShadow = '';
-    }, 2000);
-    console.warn(msg);
-    alert(msg);
-  }
-
-  shortenBtn.addEventListener('click', shorten);
-  originalUrl.addEventListener('keydown', e => { if (e.key === 'Enter') shorten(); });
-
-  copyBtn.addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(shortUrlInput.value);
-      copyBtn.textContent = '¡Copiado!';
-      copyBtn.style.background = 'linear-gradient(135deg,#10b981,#059669)';
-      setTimeout(() => {
-        copyBtn.textContent = 'Copiar';
-        copyBtn.style.background = '';
-      }, 1800);
-    } catch { alert('Copia manualmente: ' + shortUrlInput.value); }
-  });
-
-  clearBtn.addEventListener('click', () => {
-    originalUrl.value = '';
-    shortUrlInput.value = '';
-    resultSection.classList.add('d-none');
-    originalUrl.focus();
-  });
-
-  pasteBtn.addEventListener('click', async () => {
-    try {
-      if (!navigator.clipboard) throw new Error('API no disponible');
-      const text = await navigator.clipboard.readText();
-      if (text.trim()) { originalUrl.value = text.trim(); originalUrl.focus(); }
-      else alert('El portapapeles está vacío.');
-    } catch (err) {
-      alert(err.name === 'NotAllowedError'
-        ? 'Permiso denegado. Usa Ctrl+V para pegar.'
-        : 'No se pudo acceder al portapapeles. Usa Ctrl+V.');
+    function showError(msg) {
+        // Inline shake + message instead of alert
+        originalUrl.style.borderColor = '#ef4444';
+        originalUrl.style.boxShadow = '0 0 0 3px rgba(239,68,68,0.12)';
+        setTimeout(() => {
+            originalUrl.style.borderColor = '';
+            originalUrl.style.boxShadow = '';
+        }, 2000);
+        console.warn(msg);
+        alert(msg);
     }
-  });
+
+    shortenBtn.addEventListener('click', shorten);
+    originalUrl.addEventListener('keydown', e => { if (e.key === 'Enter') shorten(); });
+
+    copyBtn.addEventListener('click', async () => {
+        try {
+            await navigator.clipboard.writeText(shortUrlInput.value);
+            copyBtn.textContent = '¡Copiado!';
+            copyBtn.style.background = 'linear-gradient(135deg,#10b981,#059669)';
+            setTimeout(() => {
+                copyBtn.textContent = 'Copiar';
+                copyBtn.style.background = '';
+            }, 1800);
+        } catch { alert('Copia manualmente: ' + shortUrlInput.value); }
+    });
+
+    clearBtn.addEventListener('click', () => {
+        originalUrl.value = '';
+        shortUrlInput.value = '';
+        resultSection.classList.add('d-none');
+        originalUrl.focus();
+    });
+
+    pasteBtn.addEventListener('click', async () => {
+        try {
+            if (!navigator.clipboard) throw new Error('API no disponible');
+            const text = await navigator.clipboard.readText();
+            if (text.trim()) { originalUrl.value = text.trim(); originalUrl.focus(); }
+            else alert('El portapapeles está vacío.');
+        } catch (err) {
+            alert(err.name === 'NotAllowedError'
+                ? 'Permiso denegado. Usa Ctrl+V para pegar.'
+                : 'No se pudo acceder al portapapeles. Usa Ctrl+V.');
+        }
+    });
 </script>
 {% endblock %}

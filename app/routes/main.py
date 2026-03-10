@@ -6,7 +6,13 @@ Copyright: (c) 2026 JuandeMolina
 License: MIT
 """
 
-from flask import Blueprint, render_template, request, redirect, jsonify
+from flask import (
+    Blueprint,
+    render_template,
+    request,
+    redirect,
+    jsonify,
+    abort)
 from flask_login import current_user, login_required
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -21,7 +27,7 @@ main = Blueprint("main", __name__)
 @main.route("/", methods=["GET"])
 def index():
     return render_template("index.html")
-
+    
 
 @main.route("/api/shorten", methods=["POST"])
 def api_shorten():
@@ -46,7 +52,7 @@ def api_shorten():
         new_url = URLService.create_short_url(url, user_id)
     except SQLAlchemyError:
         db.session.rollback()
-        return render_template("503.html"), 503
+        abort(503)
 
     short_url = request.host_url.rstrip("/") + "/" + new_url.alias
     return jsonify({"shortUrl": short_url, "alias": new_url.alias}), 201
@@ -56,7 +62,7 @@ def api_shorten():
 def redirect_short(short_id):
     target = URLService.get_url_by_alias(short_id)
     if not target:
-        return render_template("404.html"), 404
+        abort(404)
     return redirect(target.original_url)
 
 

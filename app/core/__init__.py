@@ -15,11 +15,11 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 
+
 # Extensions
 db = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()
-
 
 def create_app(config_class=None):
     """Application factory pattern."""
@@ -51,6 +51,10 @@ def create_app(config_class=None):
 
     app.register_blueprint(main)
     app.register_blueprint(auth, url_prefix="/auth")
+
+    # Register error handlers
+    from ..errors import register_error_handlers
+    register_error_handlers(app)
 
     # Load user loader
     @login_manager.user_loader

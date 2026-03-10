@@ -37,15 +37,8 @@
     .auth-brand-icon {
         width: 36px;
         height: 36px;
-        background: var(--grad);
         border-radius: var(--radius-xs);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #fff;
-        font-weight: 700;
-        font-size: 0.75rem;
-        font-family: var(--font-body);
+        object-fit: contain;
         box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
     }
 
@@ -117,14 +110,14 @@
     <div class="card auth-card">
 
         <a href="{{ url_for('main.index') }}" class="auth-brand">
-            <div class="auth-brand-icon">AE</div>
+            <img src="{{ url_for('static', filename='img/icon.svg') }}" alt="NanoLink" class="auth-brand-icon">
             <span class="auth-brand-name">NanoLink</span>
         </a>
 
         <div class="auth-divider"></div>
 
         <h1 class="auth-title">Crear una cuenta</h1>
-        <p class="auth-subtitle">Encantado de conocerte.<br>Espero que nos veamos muy a menudo.</p>
+        <p class="auth-subtitle">Guarda y gestiona todos tus enlaces acortados.</p>
 
         <form method="POST">
             <div class="form-group">

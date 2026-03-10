@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "nanolink"
+name = "NanoLink"
 version = "0.1.0"
 description = "Aplicación web para acortar URLs con soporte para registro de usuarios, autenticación y gestión de enlaces personalizados"
 authors = [
