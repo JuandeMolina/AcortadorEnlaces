@@ -27,7 +27,8 @@ def create_app(config_class=None):
     app = Flask(
         __name__,
         template_folder=str(BASE_DIR / "app" / "templates"),
-    )  # Specify the template folder explicitly to avoid errors
+        static_folder=str(BASE_DIR / "app" / "static"),
+    )  # Specify the template and static folders explicitly
 
     # Load configuration
     if config_class:
@@ -73,8 +74,8 @@ def setup_logging(app):
 
         file_handler = logging.FileHandler(log_file)
         file_handler.setLevel(logging.WARNING)
-        file_handler.setFormatter(logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        ))
+        file_handler.setFormatter(
+            logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        )
         app.logger.addHandler(file_handler)
         app.logger.setLevel(logging.INFO)
