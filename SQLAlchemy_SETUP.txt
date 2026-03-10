@@ -8,7 +8,7 @@ Objetivo
 
 Requisitos previos
 - Python 3.8+ instalado
-- Estar en la carpeta del proyecto (ej: `/home/juandemolinaperales/Escritorio/AcortadorEnlaces`)
+- Estar en la carpeta del proyecto (ej: `/home/juandemolinaperales/Escritorio/NanoLink`)
 
 1) Crear y activar entorno virtual e instalar dependencias
 
@@ -33,7 +33,7 @@ Crea un archivo `.env` en la raíz con valores por defecto:
 
 ```bash
 cat > .env <<EOF
-FLASK_APP=acortadorenlaces.py
+FLASK_APP=nanolink.py
 FLASK_ENV=development
 SECRET_KEY=change_this_secret_in_production
 DATABASE_URL=sqlite:///data/app.db
@@ -93,10 +93,10 @@ def create_app():
     return app
 ```
 
-Actualiza `acortadorenlaces.py` para usar la fábrica `create_app`:
+Actualiza `nanolink.py` para usar la fábrica `create_app`:
 
 ```python
-# acortadorenlaces.py
+# nanolink.py
 from app import create_app
 
 app = create_app()
@@ -153,7 +153,7 @@ Notas:
 Exporta variable `FLASK_APP` y crea migraciones:
 
 ```bash
-export FLASK_APP=acortadorenlaces.py
+export FLASK_APP=nanolink.py
 flask db init
 flask db migrate -m "create users and urls"
 flask db upgrade
@@ -266,14 +266,14 @@ pip install flask flask-sqlalchemy flask-migrate flask-login python-dotenv werkz
 
 # preparar entorno
 cat > .env <<EOF
-FLASK_APP=acortadorenlaces.py
+FLASK_APP=nanolink.py
 FLASK_ENV=development
 SECRET_KEY=change_this
 DATABASE_URL=sqlite:///data/app.db
 EOF
 
 # exportar variable y migraciones
-export FLASK_APP=acortadorenlaces.py
+export FLASK_APP=nanolink.py
 flask db init
 flask db migrate -m "create users and urls"
 flask db upgrade
@@ -281,7 +281,7 @@ flask db upgrade
 # ejecutar app
 flask run
 # o
-python acortadorenlaces.py
+python nanolink.py
 ```
 
 Notas y recomendaciones

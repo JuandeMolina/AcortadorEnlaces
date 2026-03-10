@@ -1,4 +1,4 @@
-# AcortadorEnlaces
+# NanoLink
 
 Aplicación web para acortar URLs con soporte para registro de usuarios, autenticación y gestión de enlaces personalizados.
 
@@ -21,7 +21,7 @@ Aplicación web para acortar URLs con soporte para registro de usuarios, autenti
 ### 1. Clonar el repositorio y navegar a la carpeta
 
 ```bash
-cd AcortadorEnlaces
+cd NanoLink
 ```
 
 ### 2. Crear entorno virtual
@@ -43,7 +43,7 @@ Crear archivo `.env` en la raíz del proyecto:
 
 ```bash
 cat > .env <<EOF
-FLASK_APP=acortadorenlaces.py
+FLASK_APP=nanolink.py
 FLASK_ENV=development
 SECRET_KEY=tu-clave-secreta-aqui-cambiar-en-produccion
 DATABASE_URL=sqlite:////ruta/absoluta/a/data/app.db
@@ -55,7 +55,7 @@ EOF
 ### 5. Inicializar la base de datos
 
 ```bash
-export FLASK_APP=acortadorenlaces.py
+export FLASK_APP=nanolink.py
 flask db init          # Solo si no existe migrations/
 flask db migrate -m "Initial migration"
 flask db upgrade       # Crear tablas
@@ -64,7 +64,7 @@ flask db upgrade       # Crear tablas
 ### 6. Ejecutar la aplicación
 
 ```bash
-python acortadorenlaces.py
+python nanolink.py
 # o con Flask:
 flask run
 ```
@@ -93,8 +93,8 @@ La aplicación estará disponible en `http://127.0.0.1:5001`
 ## Estructura del proyecto
 
 ```
-AcortadorEnlaces/
-├── acortadorenlaces.py          # Punto de entrada principal
+NanoLink/
+├── nanolink.py          # Punto de entrada principal
 ├── config.py                     # Configuración de la aplicación
 ├── README.md                     # Este archivo
 ├── requirements.txt              # Dependencias de Python
@@ -200,7 +200,7 @@ Para cambiar de SQLite a PostgreSQL:
 
 3. Aplicar migraciones (la BD debe existir):
    ```bash
-   export FLASK_APP=acortadorenlaces.py
+   export FLASK_APP=nanolink.py
    flask db upgrade
    ```
 
@@ -210,14 +210,14 @@ Para cambiar de SQLite a PostgreSQL:
 
 ```bash
 pip install gunicorn
-gunicorn -w 4 -b 0.0.0.0:8000 acortadorenlaces:app
+gunicorn -w 4 -b 0.0.0.0:8000 nanolink:app
 ```
 
 ### En Heroku
 
 1. Crear archivo `Procfile`:
    ```
-   web: gunicorn acortadorenlaces:app
+   web: gunicorn nanolink:app
    ```
 
 2. Deployar:

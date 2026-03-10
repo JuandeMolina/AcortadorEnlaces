@@ -46,7 +46,7 @@ def api_shorten():
         new_url = URLService.create_short_url(url, user_id)
     except SQLAlchemyError:
         db.session.rollback()
-        return jsonify({"error": "storage_error"}), 500
+        return render_template("503.html"), 503
 
     short_url = request.host_url.rstrip("/") + "/" + new_url.alias
     return jsonify({"shortUrl": short_url, "alias": new_url.alias}), 201

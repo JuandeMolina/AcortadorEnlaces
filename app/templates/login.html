@@ -1,28 +1,138 @@
 {% extends "base.html" %}
 
-{% block title %}Iniciar sesión - AcortadorEnlaces{% endblock %}
+{% block title %}Iniciar sesión — NanoLink{% endblock %}
+
+{% block extra_head %}
+<style>
+    body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .auth-wrapper {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px 16px;
+    }
+
+    .auth-card {
+        width: 100%;
+        max-width: 400px;
+        padding: 40px 36px 36px;
+        animation: slideUp .5s var(--ease-spring) both;
+    }
+
+    .auth-brand {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 28px;
+        text-decoration: none;
+    }
+
+    .auth-brand-icon {
+        width: 36px;
+        height: 36px;
+        background: var(--grad);
+        border-radius: var(--radius-xs);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.75rem;
+        font-family: var(--font-body);
+        box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+    }
+
+    .auth-brand-name {
+        font-family: var(--font-body);
+        font-weight: 700;
+        font-size: 1rem;
+        color: var(--text-dark);
+        letter-spacing: -0.2px;
+    }
+
+    .auth-divider {
+        height: 1px;
+        background: var(--border);
+        margin: 0 0 26px;
+    }
+
+    .auth-title {
+        font-family: var(--font-display);
+        font-size: 1.55rem;
+        color: var(--text-dark);
+        text-align: center;
+        margin-bottom: 6px;
+        letter-spacing: -0.3px;
+    }
+
+    .auth-subtitle {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        text-align: center;
+        margin-bottom: 28px;
+    }
+
+    .auth-footer {
+        margin-top: 22px;
+        padding-top: 18px;
+        border-top: 1px solid var(--border);
+        font-size: 0.84rem;
+        color: var(--text-muted);
+        text-align: center;
+    }
+
+    .auth-footer a {
+        font-weight: 600;
+        color: var(--blue);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container" style="max-width: 400px;">
-    <div class="card p-4">
-        <h2 class="text-center mb-4">Inicia sesión</h2>
+<div class="auth-wrapper">
+    <div class="card auth-card">
+
+        <a href="{{ url_for('main.index') }}" class="auth-brand">
+            <div class="auth-brand-icon">AE</div>
+            <span class="auth-brand-name">NanoLink</span>
+        </a>
+
+        <div class="auth-divider"></div>
+
+        <h1 class="auth-title">Bienvenido de nuevo</h1>
+        <p class="auth-subtitle">Inicia sesión para gestionar tus enlaces.</p>
 
         <form method="POST">
-            <div class="mb-3">
-                <label for="username" class="form-label">Nombre de usuario</label>
-                <input type="text" class="form-control" id="username" name="username" required>
+            <div class="form-group">
+                <label for="username">Nombre de usuario</label>
+                <input type="text" id="username" name="username" placeholder="tu_usuario" required>
             </div>
 
-            <div class="mb-3">
-                <label for="password" class="form-label">Contraseña</label>
-                <input type="password" class="form-control" id="password" name="password" required>
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" placeholder="••••••••" required>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100">Iniciar sesión</button>
+            <button type="submit" class="btn btn-primary w-full" style="margin-top: 4px;">
+                <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                </svg>
+                Iniciar sesión
+            </button>
         </form>
 
-        <hr>
-        <p class="text-center">¿No tienes cuenta? <a href="{{ url_for('auth.register') }}">Regístrate aquí</a></p>
+        <div class="auth-footer">
+            ¿No tienes cuenta? <a href="{{ url_for('auth.register') }}">Regístrate aquí</a>
+        </div>
+
     </div>
 </div>
 {% endblock %}

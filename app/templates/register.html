@@ -1,38 +1,168 @@
 {% extends "base.html" %}
 
-{% block title %}Registro - AcortadorEnlaces{% endblock %}
+{% block title %}Registro — NanoLink{% endblock %}
+
+{% block extra_head %}
+<style>
+    body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .auth-wrapper {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px 16px;
+    }
+
+    .auth-card {
+        width: 100%;
+        max-width: 420px;
+        padding: 40px 36px 36px;
+        animation: slideUp .5s var(--ease-spring) both;
+    }
+
+    .auth-brand {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 28px;
+        text-decoration: none;
+    }
+
+    .auth-brand-icon {
+        width: 36px;
+        height: 36px;
+        background: var(--grad);
+        border-radius: var(--radius-xs);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.75rem;
+        font-family: var(--font-body);
+        box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+    }
+
+    .auth-brand-name {
+        font-family: var(--font-body);
+        font-weight: 700;
+        font-size: 1rem;
+        color: var(--text-dark);
+        letter-spacing: -0.2px;
+    }
+
+    .auth-divider {
+        height: 1px;
+        background: var(--border);
+        margin: 0 0 26px;
+    }
+
+    .auth-title {
+        font-family: var(--font-display);
+        font-size: 1.55rem;
+        color: var(--text-dark);
+        text-align: center;
+        margin-bottom: 6px;
+        letter-spacing: -0.3px;
+    }
+
+    .auth-subtitle {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        text-align: center;
+        margin-bottom: 28px;
+    }
+
+    /* Two-column row for password fields */
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .auth-footer {
+        margin-top: 22px;
+        padding-top: 18px;
+        border-top: 1px solid var(--border);
+        font-size: 0.84rem;
+        color: var(--text-muted);
+        text-align: center;
+    }
+
+    .auth-footer a {
+        font-weight: 600;
+        color: var(--blue);
+    }
+
+    @media (max-width: 480px) {
+        .auth-card {
+            padding: 32px 22px 28px;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container" style="max-width: 400px;">
-    <div class="card p-4">
-        <h2 class="text-center mb-4">Crear cuenta</h2>
+<div class="auth-wrapper">
+    <div class="card auth-card">
+
+        <a href="{{ url_for('main.index') }}" class="auth-brand">
+            <div class="auth-brand-icon">AE</div>
+            <span class="auth-brand-name">NanoLink</span>
+        </a>
+
+        <div class="auth-divider"></div>
+
+        <h1 class="auth-title">Crear una cuenta</h1>
+        <p class="auth-subtitle">Encantado de conocerte.<br>Espero que nos veamos muy a menudo.</p>
 
         <form method="POST">
-            <div class="mb-3">
-                <label for="username" class="form-label">Nombre de usuario</label>
-                <input type="text" class="form-control" id="username" name="username" required>
+            <div class="form-group">
+                <label for="username">Nombre de usuario</label>
+                <input type="text" id="username" name="username" placeholder="tu_usuario" required>
             </div>
 
-            <div class="mb-3">
-                <label for="email" class="form-label">Correo electrónico</label>
-                <input type="email" class="form-control" id="email" name="email" required>
+            <div class="form-group">
+                <label for="email">Correo electrónico</label>
+                <input type="email" id="email" name="email" placeholder="tu@correo.com" required>
             </div>
 
-            <div class="mb-3">
-                <label for="password" class="form-label">Contraseña</label>
-                <input type="password" class="form-control" id="password" name="password" required>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" name="password" placeholder="••••••••" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password_confirm">Confirmar</label>
+                    <input type="password" id="password_confirm" name="password_confirm" placeholder="••••••••"
+                        required>
+                </div>
             </div>
 
-            <div class="mb-3">
-                <label for="password_confirm" class="form-label">Confirmar contraseña</label>
-                <input type="password" class="form-control" id="password_confirm" name="password_confirm" required>
-            </div>
-
-            <button type="submit" class="btn btn-primary w-100">Registrarse</button>
+            <button type="submit" class="btn btn-primary w-full" style="margin-top: 4px;">
+                <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                </svg>
+                Crear cuenta
+            </button>
         </form>
 
-        <hr>
-        <p class="text-center">¿Ya tienes cuenta? <a href="{{ url_for('auth.login') }}">Inicia sesión</a></p>
+        <div class="auth-footer">
+            ¿Ya tienes cuenta? <a href="{{ url_for('auth.login') }}">Inicia sesión</a>
+        </div>
+
     </div>
 </div>
 {% endblock %}

@@ -32,7 +32,7 @@ def setup_app():
         # Crear directorio data si no existe
         db_path.parent.mkdir(parents=True, exist_ok=True)
         env = os.environ.copy()
-        env["FLASK_APP"] = "acortadorenlaces.py"
+        env["FLASK_APP"] = "nanolink.py"
         cwd = Path(__file__).parent.parent
         flask_cmd = str(Path(__file__).parent.parent / "venv" / "bin" / "flask")
         if not migrations_path.exists():

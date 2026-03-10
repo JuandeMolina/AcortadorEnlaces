@@ -3,11 +3,11 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "acortadorenlaces"
+name = "nanolink"
 version = "0.1.0"
 description = "Aplicación web para acortar URLs con soporte para registro de usuarios, autenticación y gestión de enlaces personalizados"
 authors = [
-    {name = "Juande Molina", email = "juande.molina@example.com"}
+    {name = "Juande Molina", email = "mp.juande@gmail.com"}
 ]
 license = {text = "MIT"}
 readme = "README.md"
@@ -36,9 +36,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/juandemolina/acortadorenlaces"
-Repository = "https://github.com/juandemolina/acortadorenlaces.git"
-Issues = "https://github.com/juandemolina/acortadorenlaces/issues"
+Homepage = "https://github.com/juandemolina/nanolink"
+Repository = "https://github.com/juandemolina/nanolink.git"
+Issues = "https://github.com/juandemolina/nanolink/issues"
 
 [tool.setuptools]
 packages = ["app"]

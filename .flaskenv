@@ -1,1 +1,1 @@
-FLASK_APP=acortadorenlaces.py
+FLASK_APP=nanolink.py
