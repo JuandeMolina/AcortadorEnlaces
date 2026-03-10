@@ -63,12 +63,18 @@ def create_app(config_class=None):
 
 def setup_logging(app):
     """Setup basic logging configuration."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    )
-    # Add file handler if needed
     if not app.debug:
-        file_handler = logging.FileHandler("logs/app.log")
+        # Only setup file logging in production
+        log_dir = "logs"
+        log_file = os.path.join(log_dir, "app.log")
+
+        if not os.path.exists(log_dir):
+            os.makedirs(log_dir)
+
+        file_handler = logging.FileHandler(log_file)
         file_handler.setLevel(logging.WARNING)
+        file_handler.setFormatter(logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        ))
         app.logger.addHandler(file_handler)
+        app.logger.setLevel(logging.INFO)
