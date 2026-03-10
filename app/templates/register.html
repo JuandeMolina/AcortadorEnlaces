@@ -120,6 +120,18 @@
         <p class="auth-subtitle">Guarda y gestiona todos tus enlaces acortados.</p>
 
         <form method="POST">
+
+            {% if error %}
+            <div class="form-error">
+                <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"
+                    style="flex-shrink:0">
+                    <circle cx="12" cy="12" r="10" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01" />
+                </svg>
+                {{ error }}
+            </div>
+            {% endif %}
+
             <div class="form-group">
                 <label for="username">Nombre de usuario</label>
                 <input type="text" id="username" name="username" placeholder="tu_usuario" required>

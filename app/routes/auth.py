@@ -10,7 +10,14 @@ Extra details:
     POST method: handles user input from the form
 """
 
-from flask import Blueprint, render_template, request, redirect, url_for, abort
+from flask import (
+    Blueprint,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    abort
+)
 from flask_login import login_user, logout_user, login_required
 
 from ..core import db
@@ -42,7 +49,7 @@ def register():
             return render_template("register.html", error="Ese correo ya tiene una cuenta asociada."), 409
 
         # Create new user
-        user = User(username=username, email=email)
+        user = User(username=username, email=email) # type: ignore
         user.set_password(password)
 
         try:

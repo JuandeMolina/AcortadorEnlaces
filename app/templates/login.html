@@ -85,6 +85,20 @@
         font-weight: 600;
         color: var(--blue);
     }
+
+    .form-error {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.84rem;
+        color: #dc2626;
+        background: rgba(239, 68, 68, 0.07);
+        border: 1px solid rgba(239, 68, 68, 0.18);
+        border-radius: var(--radius-sm);
+        padding: 10px 14px;
+        margin-bottom: 18px;
+        animation: slideUp .3s var(--ease-spring) both;
+    }
 </style>
 {% endblock %}
 
@@ -103,6 +117,16 @@
         <p class="auth-subtitle">Inicia sesión para gestionar tus enlaces.</p>
 
         <form method="POST">
+            {% if error %}
+            <div class="form-error">
+                <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"
+                    style="flex-shrink:0">
+                    <circle cx="12" cy="12" r="10" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01" />
+                </svg>
+                {{ error }}
+            </div>
+            {% endif %}
             <div class="form-group">
                 <label for="username">Nombre de usuario</label>
                 <input type="text" id="username" name="username" placeholder="tu_usuario" required>

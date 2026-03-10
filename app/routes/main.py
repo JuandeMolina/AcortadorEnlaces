@@ -12,7 +12,8 @@ from flask import (
     request,
     redirect,
     jsonify,
-    abort)
+    abort
+)
 from flask_login import current_user, login_required
 from sqlalchemy.exc import SQLAlchemyError
 

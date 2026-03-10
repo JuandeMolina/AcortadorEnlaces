@@ -19,9 +19,9 @@ def register_error_handlers(app):
             "error.html",
             code=404,
             title="Página no encontrada",
-            description="No está mal ir por la vida sin un rumbo fijo,"
-            "pero aquí si es necesario."
-            "Te recomiendo mejorar tus habilidades de explorador"
+            description="No está mal ir por la vida sin un rumbo fijo, "
+            "pero aquí si es necesario. "
+            "Te recomiendo mejorar tus habilidades de explorador "
             "cuando vuelvas a la página de inicio."
         )
     
@@ -31,8 +31,8 @@ def register_error_handlers(app):
             "error.html",
             code=403,
             title="Acceso denegado",
-            description="¡Te pillé! ¿A dónde te crees que vas?"
-            "Voy a hacer como si no te hubiera visto, pero"
+            description="¡Te pillé! ¿A dónde te crees que vas? "
+            "Voy a hacer como si no te hubiera visto, pero "
             "vete de aquí y vuelve cuando tengas permiso, ¿de acuerdo?"
         )
     
@@ -42,8 +42,8 @@ def register_error_handlers(app):
             "error.html",
             code=500,
             title="Error interno del servidor",
-            description='"No es por tí, es por mí"'
-            "Espero que sea la primera vez que te dicen esto."
+            description='"No es por tí, es por mí" '
+            "Espero que sea la primera vez que te dicen esto. "
             "Mientras lloras, mi desarrollador intenta salvar nuestra relación."
         )
     
@@ -53,6 +53,6 @@ def register_error_handlers(app):
             "error.html",
             code=503,
             title="Servicio no disponible",
-            description="Te seré totalmente sincero. Estoy durmiendo una siesta."
+            description="Te seré totalmente sincero. Estoy durmiendo una siesta. "
             "Vuelve cuando haya despertado y déjame dormir mientras tanto."
         )
