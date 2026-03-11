@@ -48,9 +48,11 @@ def create_app(config_class=None):
     # Register blueprints
     from ..routes.main import main
     from ..routes.auth import auth
+    from ..routes.admin import admin as admin_bp
 
     app.register_blueprint(main)
     app.register_blueprint(auth, url_prefix="/auth")
+    app.register_blueprint(admin_bp, url_prefix="/admin")
 
     # Register error handlers
     from ..errors import register_error_handlers

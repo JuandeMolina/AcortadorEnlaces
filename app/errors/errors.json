@@ -1,0 +1,47 @@
+{
+    "400": {
+        "english_title": "Bad Request",
+        "spanish_title": "Petición incorrecta",
+        "description": "¿Nunca te han dicho que no le pidas peras al olmo? Bueno, ni me has pedido peras ni soy un olmo, pero no me pidas cosas que no te puedo dar, ¿de acuerdo?"
+    },
+    "403": {
+        "english_title": "Forbidden",
+        "spanish_title": "Prohibido",
+        "description": "Echa el freno, madaleno. ¿Dónde te crees que vas? Hagamos un trato: yo haré como que no te he visto y tú sales pitando de aquí."
+    },
+    "404": {
+        "english_title": "Not Found",
+        "spanish_title": "No encontrado",
+        "description": "A veces está bien ir \"a donde te lleva el viento\", pero aquí eso no nos va. Como recomendación: vuelve a inicio y después intenta mejorar tus habilidades de explorador."
+    },
+    "405": {
+        "english_title": "Method Not Allowed",
+        "spanish_title": "Método no permitido",
+        "description": "Un sabio filósofo dijo: \"El fin justifica los medios\". No estoy seguro de si eso es verdad, pero estos medios no llegan al fin que quieres."
+    },
+    "429": {
+        "english_title": "Too Many Requests",
+        "spanish_title": "Demasiadas peticiones",
+        "description": "La paciencia es la madre de la ciencia. Relájate, cuenta hasta tres, y haz lo que tengas que hacer."
+    },
+    "500": {
+        "english_title": "Internal Server Error",
+        "spanish_title": "Error interno del servidor",
+        "description": "Algo ha hecho BOOM dentro. No eres tú, es nuestro código, que hoy ha decidido levantarse con el pie izquierdo. Danos un segundo mientras barremos los trocitos."
+    },
+    "502": {
+        "english_title": "Bad Gateway",
+        "spanish_title": "Pasarela incorrecta",
+        "description": "Nuestros servidores se han dejado de hablar. El de la entrada le ha preguntado algo al del fondo y este le ha hecho el vacío. Estamos intentando que hagan las paces."
+    },
+    "503": {
+        "english_title": "Service Unavailable",
+        "spanish_title": "Servicio no disponible",
+        "description": "Estoy fuera de combate. O hay demasiada gente o estamos pasando la mopa por los cables. Tómate un café y vuelve en un minuto."
+    },
+    "504": {
+        "english_title": "Gateway Timeout",
+        "spanish_title": "Tiempo de espera de la puerta de enlace agotado",
+        "description": "El servidor se ha quedado empanado. Le hemos pedido tus datos y se ha quedado mirando al infinito, lo que ha acabado con nuestra paciencia. Inténtalo otra vez."
+    }
+}

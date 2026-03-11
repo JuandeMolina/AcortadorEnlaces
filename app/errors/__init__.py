@@ -9,60 +9,38 @@ Copyright: (c) 2026 JuandeMolina
 License: MIT
 """
 
+import json
+import os
+
 from flask import render_template
 
+
 def register_error_handlers(app):
-    
-    @app.errorhandler(403)
-    def forbidden(e):
+    # 1. Cargamos el JSON de forma segura
+    # Buscamos la ruta absoluta del archivo errores.json en la misma carpeta
+    base_path = os.path.dirname(__file__)
+    json_path = os.path.join(base_path, "errors.json")
+
+    with open(json_path, "r", encoding="utf-8") as f:
+        error_data = json.load(f)
+
+    # 2. La función única de manejo
+    def handle_error(e):
+        # Flask nos da el código como INT (ej: 403)
+        # Pero el JSON tiene las llaves como STRING (ej: "403")
+        code_str = str(getattr(e, "code", 500))
+
+        # Buscamos en el dict usando el string. Fallback al string "500".
+        info = error_data.get(code_str, error_data.get("500"))
+
         return render_template(
             "error.html",
-            code=403,
-            title="Acceso denegado",
-            description="¡Te pillé! ¿A dónde te crees que vas? "
-            "Voy a hacer como si no te hubiera visto, pero "
-            "vete de aquí y vuelve cuando tengas permiso, ¿de acuerdo?"
-        )
-    
-    @app.errorhandler(404)
-    def not_found(e):
-        return render_template(
-            "error.html",
-            code=404,
-            title="Página no encontrada",
-            description="No está mal ir por la vida sin un rumbo fijo, "
-            "pero aquí si es necesario. "
-            "Te recomiendo mejorar tus habilidades de explorador "
-            "cuando vuelvas a la página de inicio."
-        )
-    
-    @app.errorhandler(405)
-    def method_not_allowed(e):
-        return render_template(
-            "error.html",
-            code=405,
-            title="Método no permitido",
-            description="¿Buscando algo? Porque aquí no hay nada que ver. "
-            "Circulen, por favor... (y traigan un método válido la próxima vez)."
-        )
-    
-    @app.errorhandler(500)
-    def internal_error(e):
-        return render_template(
-            "error.html",
-            code=500,
-            title="Error interno del servidor",
-            description='"No es por tí, es por mí" '
-            "Espero que sea la primera vez que te dicen esto. "
-            "Mientras lloras, mi desarrollador intenta salvar nuestra relación."
-        )
-    
-    @app.errorhandler(503)
-    def service_unavailable(e):
-        return render_template(
-            "error.html",
-            code=503,
-            title="Servicio no disponible",
-            description="Te seré totalmente sincero. Estoy durmiendo una siesta. "
-            "Vuelve cuando haya despertado y déjame dormir mientras tanto."
-        )
+            code=code_str,
+            english_title=info["english_title"],
+            spanish_title=info["spanish_title"],
+            description=info["description"],
+        ), int(code_str)
+
+    # 3. Dynamic register
+    for code_str in error_data.keys():
+        app.register_error_handler(int(code_str), handle_error)
