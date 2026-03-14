@@ -6,3 +6,4 @@ __pycache__/
 data/
 .pytest_cache/
 .vscode/
+to_do.txt

@@ -11,15 +11,10 @@ import logging
 from pathlib import Path
 
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
 from flask_login import LoginManager
 
-
-# Extensions
-db = SQLAlchemy()
-migrate = Migrate()
 login_manager = LoginManager()
+
 
 def create_app(config_class=None):
     """Application factory pattern."""
@@ -28,7 +23,7 @@ def create_app(config_class=None):
         __name__,
         template_folder=str(BASE_DIR / "app" / "templates"),
         static_folder=str(BASE_DIR / "app" / "static"),
-    )  # Specify the template and static folders explicitly
+    )
 
     # Load configuration
     if config_class:
@@ -39,31 +34,46 @@ def create_app(config_class=None):
         app.config.from_object(config.Config)
 
     # Initialize extensions
-    db.init_app(app)
-    migrate.init_app(app, db)
     login_manager.init_app(app)
-    login_manager.login_view = "auth.login"  # type: ignore[assignment]
+    login_manager.login_view = "auth.login"  # type: ignore
     setup_logging(app)
 
     # Register blueprints
     from ..routes.main import main
     from ..routes.auth import auth
-    from ..routes.admin import admin as admin_bp
+    from ..routes.admin import admin
 
     app.register_blueprint(main)
     app.register_blueprint(auth, url_prefix="/auth")
-    app.register_blueprint(admin_bp, url_prefix="/admin")
+    app.register_blueprint(admin, url_prefix="/admin")
 
     # Register error handlers
     from ..errors import register_error_handlers
+
     register_error_handlers(app)
 
-    # Load user loader
+    # User loader — llamada HTTP al api (pendiente de implementar)
     @login_manager.user_loader
     def load_user(user_id):
+        from flask import session
+        import requests
         from ..models import User
 
-        return User.query.get(int(user_id))
+        token = session.get("jwt")
+        if not token:
+            return None
+
+        try:
+            r = requests.get(
+                "http://localhost:5001/api/users/me",
+                headers={"Authorization": f"Bearer {token}"},
+                timeout=5,
+            )
+            if r.status_code != 200:
+                return None
+            return User.from_dict(r.json())
+        except requests.RequestException:
+            return None
 
     return app
 
@@ -71,7 +81,6 @@ def create_app(config_class=None):
 def setup_logging(app):
     """Setup basic logging configuration."""
     if not app.debug:
-        # Only setup file logging in production
         log_dir = "logs"
         log_file = os.path.join(log_dir, "app.log")
 

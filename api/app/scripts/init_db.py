@@ -12,14 +12,16 @@ License: MIT
 
 import sys
 import socket
-import subprocess
 import os
 from pathlib import Path
 
 # Add the project root to the Python path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 from app.core import create_app
+
+API_ROOT = Path(__file__).resolve().parent.parent.parent
+VENV_FLASK = API_ROOT.parent / "venv" / "bin" / "flask"
 
 
 def create_superuser(app):
@@ -45,7 +47,7 @@ def create_superuser(app):
                 db.session.commit()
                 print(f"[superuser] <{admin_username}> ya existía. Ahora es admin.")
             else:
-                print(f"[superuser] <{admin_username}> ahora existe y es admin.")
+                print(f"[superuser] <{admin_username}> ya existe y es admin.")
             return
 
         admin = User(username=admin_username, email=admin_email, is_admin=True)  # type: ignore
@@ -57,46 +59,33 @@ def create_superuser(app):
 
 def setup_app():
     """Setup the application: initialize database if needed and print startup info."""
-    # Verificar y inicializar base de datos si no existe
-    db_path = Path(__file__).parent.parent / "data" / "app.db"
-    migrations_path = Path(__file__).parent.parent / "migrations"
+    db_path = API_ROOT / "data" / "app.db"
+
     if not db_path.exists():
         print("Base de datos no encontrada. Inicializando...")
-        # Crear directorio data si no existe
         db_path.parent.mkdir(parents=True, exist_ok=True)
-        env = os.environ.copy()
-        env["FLASK_APP"] = "nanolink.py"
-        cwd = Path(__file__).parent.parent
-        flask_cmd = str(Path(__file__).parent.parent / "venv" / "bin" / "flask")
-        if not migrations_path.exists():
-            subprocess.run([flask_cmd, "db", "init"], env=env, cwd=cwd, check=True)
-        subprocess.run(
-            [flask_cmd, "db", "migrate", "-m", "Initial migration"],
-            env=env,
-            cwd=cwd,
-            check=True,
-        )
-        subprocess.run([flask_cmd, "db", "upgrade"], env=env, cwd=cwd, check=True)
-        print("Base de datos inicializada.")
 
     app = create_app()
-    create_superuser(app)
 
-    # Obtener la IP local
-    hostname = socket.gethostname()
-    local_ip = socket.gethostbyname(hostname)
-    print(f"Aplicación disponible en: http://{local_ip}:5000")
-
-
-def init_db():
-    """Legacy function for manual database initialization."""
-    app = create_app()
     with app.app_context():
+        from flask_migrate import init, migrate, upgrade
         from app.core import db
 
-        db.create_all()
-        print("Database initialized.")
+        migrations_path = str(API_ROOT / "migrations")
+
+        if not (API_ROOT / "migrations").exists():
+            init(directory=migrations_path)
+            migrate(directory=migrations_path, message="Initial migration")
+
+        upgrade(directory=migrations_path)
+        print("Base de datos inicializada.")
+
+    create_superuser(app)
+
+    hostname = socket.gethostname()
+    local_ip = socket.gethostbyname(hostname)
+    print(f"API disponible en: http://{local_ip}:5001")
 
 
 if __name__ == "__main__":
-    init_db()
+    setup_app()
