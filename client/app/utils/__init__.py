@@ -1,9 +1,7 @@
 """
 Module Name: Utility functions
 Description:
-    This module contains utility functions for URL validation and sanitization.
-    These functions are used across the application to ensure that user input
-    is properly validated and sanitized before being processed or stored.
+    Utility functions for URL validation, sanitization and API communication.
 Author: Juande Molina
 Copyright: (c) 2026 JuandeMolina
 License: MIT
@@ -12,20 +10,22 @@ License: MIT
 import re
 from functools import wraps
 
-from flask import abort
-from flask_login import current_user
+import requests
+from flask import abort, session
+from flask_login import current_user, logout_user
 
 
 def validate_url(url):
     """Basic URL validation."""
     url_pattern = re.compile(
-        r'^https?://'  # http:// or https://
-        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|'  # domain...
-        r'localhost|'  # localhost...
-        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
-        r'(?::\d+)?'  # optional port
-        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
-
+        r"^https?://"
+        r"(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|"
+        r"localhost|"
+        r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})"
+        r"(?::\d+)?"
+        r"(?:/?|[/?]\S+)$",
+        re.IGNORECASE,
+    )
     return url_pattern.match(url) is not None
 
 
@@ -33,10 +33,60 @@ def sanitize_url(url):
     """Basic URL sanitization."""
     return url.strip()
 
+
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not current_user.is_authenticated or not current_user.is_admin:
             abort(403)
         return f(*args, **kwargs)
+
     return decorated_function
+
+
+API_BASE = "http://localhost:5001/api"
+
+
+def _api_headers():
+    token = session.get("jwt")
+    if token:
+        return {"Authorization": f"Bearer {token}"}
+    return {}
+
+
+def _handle_401():
+    session.pop("jwt", None)
+    logout_user()
+
+
+def api_get(url):
+    try:
+        r = requests.get(url, headers=_api_headers(), timeout=5)
+        if r.status_code == 401:
+            _handle_401()
+            return None, 401
+        return r, r.status_code
+    except requests.RequestException:
+        return None, 503
+
+
+def api_post(url, payload=None):
+    try:
+        r = requests.post(url, json=payload, headers=_api_headers(), timeout=5)
+        if r.status_code == 401:
+            _handle_401()
+            return None, 401
+        return r, r.status_code
+    except requests.RequestException:
+        return None, 503
+
+
+def api_delete(url):
+    try:
+        r = requests.delete(url, headers=_api_headers(), timeout=5)
+        if r.status_code == 401:
+            _handle_401()
+            return None, 401
+        return r, r.status_code
+    except requests.RequestException:
+        return None, 503

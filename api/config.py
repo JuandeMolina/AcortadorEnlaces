@@ -9,6 +9,7 @@ License: MIT
 
 import os
 from pathlib import Path
+from datetime import timedelta
 
 from dotenv import load_dotenv
 
@@ -25,14 +26,17 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     DEBUG = False
     TESTING = False
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
 
 
 class DevelopmentConfig(Config):
     DEBUG = True
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=7)
 
 
 class ProductionConfig(Config):
     DEBUG = False
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=60)
 
 
 class TestingConfig(Config):

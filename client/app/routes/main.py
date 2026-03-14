@@ -8,20 +8,24 @@ License: MIT
 
 import requests
 
-from flask import Blueprint, render_template, request, redirect, jsonify, abort, session
-from flask_login import current_user, login_required
+from flask import (
+    Blueprint,
+    render_template,
+    request,
+    redirect,
+    jsonify,
+    abort,
+    session,
+    url_for,
+)
+from flask_login import current_user, login_required, logout_user
+
+from ..utils import admin_required, api_get, api_post, api_delete, API_BASE, _handle_401
+
 
 main = Blueprint("main", __name__)
 
 API_BASE = "http://localhost:5001/api"
-
-
-def _api_headers():
-    """Devuelve las cabeceras con JWT si el usuario está autenticado."""
-    token = session.get("jwt")
-    if token:
-        return {"Authorization": f"Bearer {token}"}
-    return {}
 
 
 @main.route("/", methods=["GET"])
@@ -37,18 +41,16 @@ def api_shorten():
     if not url:
         return jsonify({"error": "missing_url"}), 400
 
-    try:
-        r = requests.post(
-            f"{API_BASE}/urls/shorten",
-            json={"url": url},
-            headers=_api_headers(),
-            timeout=5,
-        )
-        if r.status_code == 201:
-            return jsonify(r.json()), 201
-        return jsonify(r.json()), r.status_code
-    except requests.RequestException:
+    r, status = api_post(f"{API_BASE}/urls/shorten", {"url": url})
+
+    if status == 503:
         return jsonify({"error": "api_unavailable"}), 503
+    if status == 401:
+        return jsonify({"error": "unauthorized"}), 401
+    if r is None:
+        return jsonify({"error": "api_unavailable"}), 503
+
+    return jsonify(r.json()), status
 
 
 @main.route("/<short_id>", methods=["GET"])
@@ -56,45 +58,46 @@ def redirect_short(short_id):
     if "." in short_id:
         abort(404)
 
-    try:
-        r = requests.get(
-            f"{API_BASE}/urls/{short_id}", timeout=5, allow_redirects=False
-        )
-        if r.status_code == 200:
-            return redirect(r.json().get("original_url"))
-        abort(404)
-    except requests.RequestException:
+    r, status = api_get(f"{API_BASE}/urls/{short_id}")
+
+    if status == 503 or r is None:
         abort(503)
+    if status == 404:
+        abort(404)
+    if status == 200:
+        return redirect(r.json().get("original_url"))
+    abort(404)
 
 
 @main.route("/dashboard", methods=["GET"])
 @login_required
 def dashboard():
-    try:
-        r = requests.get(f"{API_BASE}/urls", headers=_api_headers(), timeout=5)
-        urls = r.json() if r.status_code == 200 else []
-    except requests.RequestException:
-        urls = []
+    r, status = api_get(f"{API_BASE}/urls")
+
+    if status == 401:
+        return redirect(url_for("auth.login"))
+    if status == 503 or r is None:
+        abort(503)
+
+    urls = r.json() if status == 200 else []
     return render_template("dashboard.html", urls=urls)
 
 
 @main.route("/api/urls", methods=["GET"])
 @login_required
 def get_user_urls():
-    try:
-        r = requests.get(f"{API_BASE}/urls", headers=_api_headers(), timeout=5)
-        return jsonify(r.json()), r.status_code
-    except requests.RequestException:
+    r, status = api_get(f"{API_BASE}/urls")
+
+    if r is None:
         return jsonify({"error": "api_unavailable"}), 503
+    return jsonify(r.json()), status
 
 
 @main.route("/api/urls/<int:url_id>", methods=["DELETE"])
 @login_required
 def delete_user_url(url_id):
-    try:
-        r = requests.delete(
-            f"{API_BASE}/urls/{url_id}", headers=_api_headers(), timeout=5
-        )
-        return jsonify(r.json()), r.status_code
-    except requests.RequestException:
+    r, status = api_delete(f"{API_BASE}/urls/{url_id}")
+
+    if r is None:
         return jsonify({"error": "api_unavailable"}), 503
+    return jsonify(r.json()), status

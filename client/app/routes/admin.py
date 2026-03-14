@@ -8,37 +8,32 @@ License: MIT
 
 import requests
 
-from flask import Blueprint, render_template, jsonify, session
-from flask_login import current_user
+from flask import Blueprint, render_template, jsonify, session, abort, url_for, redirect
+from flask_login import current_user, logout_user
 
-from ..utils import admin_required
+from ..utils import admin_required, api_delete, api_get, api_post, API_BASE, _handle_401
 
 admin = Blueprint("admin", __name__)
 
 API_BASE = "http://localhost:5001/api"
 
 
-def _api_headers():
-    token = session.get("jwt")
-    if token:
-        return {"Authorization": f"Bearer {token}"}
-    return {}
-
-
 @admin.route("/")
 @admin_required
 def index():
-    try:
-        r = requests.get(f"{API_BASE}/admin", headers=_api_headers(), timeout=5)
-        data = r.json() if r.status_code == 200 else {}
-    except requests.RequestException:
-        data = {}
+    r, status = api_get(f"{API_BASE}/admin")
 
+    if status == 401:
+        return redirect(url_for("auth.login"))
+    if status == 503 or r is None:
+        abort(503)
+
+    data = r.json() if status == 200 else {}
     return render_template(
         "admin.html",
         users=data.get("users", []),
         urls=data.get("urls", []),
-        stats=data.get("stats", {})
+        stats=data.get("stats", {}),
     )
 
 
@@ -48,15 +43,11 @@ def toggle_admin(user_id):
     if user_id == current_user.id:
         return jsonify({"error": "self_demotion"}), 400
 
-    try:
-        r = requests.post(
-            f"{API_BASE}/admin/users/{user_id}/toggle-admin",
-            headers=_api_headers(),
-            timeout=5
-        )
-        return jsonify(r.json()), r.status_code
-    except requests.RequestException:
+    r, status = api_post(f"{API_BASE}/admin/users/{user_id}/toggle-admin")
+
+    if r is None:
         return jsonify({"error": "api_unavailable"}), 503
+    return jsonify(r.json()), status
 
 
 @admin.route("/users/<int:user_id>", methods=["DELETE"])
@@ -65,26 +56,18 @@ def delete_user(user_id):
     if user_id == current_user.id:
         return jsonify({"error": "self_delete"}), 400
 
-    try:
-        r = requests.delete(
-            f"{API_BASE}/admin/users/{user_id}",
-            headers=_api_headers(),
-            timeout=5
-        )
-        return jsonify(r.json()), r.status_code
-    except requests.RequestException:
+    r, status = api_delete(f"{API_BASE}/admin/users/{user_id}")
+
+    if r is None:
         return jsonify({"error": "api_unavailable"}), 503
+    return jsonify(r.json()), status
 
 
 @admin.route("/urls/<int:url_id>", methods=["DELETE"])
 @admin_required
 def delete_url(url_id):
-    try:
-        r = requests.delete(
-            f"{API_BASE}/admin/urls/{url_id}",
-            headers=_api_headers(),
-            timeout=5
-        )
-        return jsonify(r.json()), r.status_code
-    except requests.RequestException:
+    r, status = api_delete(f"{API_BASE}/admin/urls/{url_id}")
+
+    if r is None:
         return jsonify({"error": "api_unavailable"}), 503
+    return jsonify(r.json()), status

@@ -16,6 +16,7 @@ from flask import (
     url_for,
     session,
     current_app,
+    abort,
 )
 from flask_login import login_user, logout_user, login_required
 
@@ -27,12 +28,11 @@ API_BASE = "http://localhost:5001/api"
 
 
 def _api_post(endpoint, payload):
-    """Helper para POST al api. Devuelve (data, status_code)."""
     try:
         r = requests.post(f"{API_BASE}{endpoint}", json=payload, timeout=5)
         return r.json(), r.status_code
     except requests.RequestException:
-        return {"message": "Error de conexión con el api"}, 503
+        return {"error": "api_unavailable"}, 503
 
 
 @auth.route("/register", methods=["GET", "POST"])
@@ -61,6 +61,9 @@ def register():
             {"username": username, "email": email, "password": password},
         )
 
+        if status in (500, 503):
+            abort(503)
+
         if status == 409:
             msg = (
                 "Ese nombre de usuario ya está en uso."
@@ -69,10 +72,7 @@ def register():
             )
             return render_template("register.html", error=msg), 409
         if status != 201:
-            return (
-                render_template("register.html", error="Error al crear la cuenta."),
-                status,
-            )
+            return abort(status)
 
         # Login automático tras registro
         login_data, login_status = _api_post(
@@ -107,6 +107,9 @@ def login():
         data, status = _api_post(
             "/users/login", {"username": username, "password": password}
         )
+
+        if status in (500, 503):
+            abort(503)
 
         if status != 200:
             return (
