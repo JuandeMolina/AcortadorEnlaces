@@ -2,7 +2,10 @@ Flask
 Flask-SQLAlchemy
 Flask-Migrate
 Flask-Login
+Flask-JWT-Extended
+Flask-Restx
 python-dotenv
 Werkzeug
 psycopg2-binary
 pytest
+requests
