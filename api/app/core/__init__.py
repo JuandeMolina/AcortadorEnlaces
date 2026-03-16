@@ -11,11 +11,13 @@ import os
 import logging
 from pathlib import Path
 
-from flask import Flask
+from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_restx import Api
 from flask_jwt_extended import JWTManager
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 
 # Extensions
@@ -36,6 +38,7 @@ api = Api(
     },
 )
 jwt = JWTManager()
+limiter = Limiter(key_func=get_remote_address)
 
 
 def create_app(config_class=None):
@@ -56,6 +59,7 @@ def create_app(config_class=None):
     migrate.init_app(app, db)
     setup_logging(app)
     jwt.init_app(app)
+    limiter.init_app(app)
 
     # Register namespaces (equivalent to blueprints in Flask-RESTX)
 
@@ -67,6 +71,10 @@ def create_app(config_class=None):
     api.add_namespace(users_ns)
     api.add_namespace(admin_ns)
     api.init_app(app)
+
+    @app.errorhandler(429)
+    def too_many_requests(e):
+        return jsonify({"error": "too_many_requests"}), 429
 
     return app
 

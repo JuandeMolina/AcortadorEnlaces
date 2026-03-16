@@ -6,8 +6,6 @@ Copyright: (c) 2026 JuandeMolina
 License: MIT
 """
 
-import requests
-
 from flask import (
     Blueprint,
     render_template,
@@ -15,24 +13,56 @@ from flask import (
     redirect,
     url_for,
     session,
-    current_app,
     abort,
 )
 from flask_login import login_user, logout_user, login_required
 
 from ..models import User
+from ..utils import api_post, API_BASE
 
 auth = Blueprint("auth", __name__)
 
-API_BASE = "http://localhost:5001/api"
 
+@auth.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = (request.form.get("username") or "").strip()
+        password = request.form.get("password") or ""
 
-def _api_post(endpoint, payload):
-    try:
-        r = requests.post(f"{API_BASE}{endpoint}", json=payload, timeout=5)
-        return r.json(), r.status_code
-    except requests.RequestException:
-        return {"error": "api_unavailable"}, 503
+        if not username or not password:
+            return (
+                render_template(
+                    "login.html", error="Introduce tu usuario y contraseña."
+                ),
+                400,
+            )
+
+        r, status = api_post(
+            f"{API_BASE}/users/login",
+            {"username": username, "password": password},
+            handle_401=False,
+        )
+        print(f"DEBUG LOGIN: Status={status}, r={r}")
+
+        if status == 429:
+            abort(429)
+        if status in (500, 503):
+            abort(503)
+        if status != 200:
+            return (
+                render_template(
+                    "login.html", error="Usuario o contraseña incorrectos."
+                ),
+                401,
+            )
+
+        data = r.json()  # type: ignore
+        session["jwt"] = data["access_token"]
+        user = User.from_dict(data["user"])
+        login_user(user, remember=True)
+        return redirect(url_for("main.index"))
+
+    return render_template("login.html")
 
 
 @auth.route("/register", methods=["GET", "POST"])
@@ -55,16 +85,17 @@ def register():
                 400,
             )
 
-        # Registrar en el api
-        data, status = _api_post(
-            "/users/register",
+        r, status = api_post(
+            f"{API_BASE}/users/register",
             {"username": username, "email": email, "password": password},
         )
 
+        if status == 429:
+            abort(429)
         if status in (500, 503):
             abort(503)
-
         if status == 409:
+            data = r.json()  # type: ignore
             msg = (
                 "Ese nombre de usuario ya está en uso."
                 if "username" in data.get("message", "")
@@ -72,59 +103,29 @@ def register():
             )
             return render_template("register.html", error=msg), 409
         if status != 201:
-            return abort(status)
+            abort(status)
+
+        register_data = r.json()  # type: ignore
 
         # Login automático tras registro
-        login_data, login_status = _api_post(
-            "/users/login", {"username": username, "password": password}
+        r_login, login_status = api_post(
+            f"{API_BASE}/users/login", {"username": username, "password": password}
         )
 
+        if login_status == 429:
+            abort(429)
+        if login_status in (500, 503) or r_login is None:
+            abort(503)
         if login_status != 200:
             return redirect(url_for("auth.login"))
 
+        login_data = r_login.json()
         session["jwt"] = login_data["access_token"]
-        user = User.from_dict(data)
+        user = User.from_dict(register_data)
         login_user(user)
         return redirect(url_for("main.index"))
 
     return render_template("register.html")
-
-
-@auth.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        username = (request.form.get("username") or "").strip()
-        password = request.form.get("password") or ""
-
-        if not username or not password:
-            return (
-                render_template(
-                    "login.html", error="Introduce tu usuario y contraseña."
-                ),
-                400,
-            )
-
-        data, status = _api_post(
-            "/users/login", {"username": username, "password": password}
-        )
-
-        if status in (500, 503):
-            abort(503)
-
-        if status != 200:
-            return (
-                render_template(
-                    "login.html", error="Usuario o contraseña incorrectos."
-                ),
-                401,
-            )
-
-        session["jwt"] = data["access_token"]
-        user = User.from_dict(data["user"])
-        login_user(user, remember=True)
-        return redirect(url_for("main.index"))
-
-    return render_template("login.html")
 
 
 @auth.route("/logout", methods=["GET", "POST"])

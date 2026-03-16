@@ -13,7 +13,7 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 from sqlalchemy.exc import SQLAlchemyError
 
 from ..models import User
-from ..core import db
+from ..core import db, limiter
 
 ns = Namespace("users", description="Operaciones sobre usuarios", path="/api/users")
 
@@ -70,6 +70,7 @@ token_output = ns.model(
 @ns.route("/login")
 class Login(Resource):
 
+    @limiter.limit("10 per minute")
     @ns.expect(login_model)
     @ns.response(200, "Login correcto", token_model)
     @ns.response(400, "Faltan campos")
@@ -103,6 +104,7 @@ class Login(Resource):
 @ns.route("/register")
 class Register(Resource):
 
+    @limiter.limit("5 per minute")
     @ns.expect(register_input)
     @ns.marshal_with(user_output)
     def post(self):

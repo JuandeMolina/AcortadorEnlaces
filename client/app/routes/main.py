@@ -20,12 +20,10 @@ from flask import (
 )
 from flask_login import current_user, login_required, logout_user
 
-from ..utils import admin_required, api_get, api_post, api_delete, API_BASE, _handle_401
+from ..utils import admin_required, api_get, api_post, api_delete, API_BASE
 
 
 main = Blueprint("main", __name__)
-
-API_BASE = "http://localhost:5001/api"
 
 
 @main.route("/", methods=["GET"])
@@ -58,7 +56,7 @@ def redirect_short(short_id):
     if "." in short_id:
         abort(404)
 
-    r, status = api_get(f"{API_BASE}/urls/{short_id}")
+    r, status = api_get(f"{API_BASE}/urls/redirect/{short_id}")
 
     if status == 503 or r is None:
         abort(503)
@@ -76,6 +74,8 @@ def dashboard():
 
     if status == 401:
         return redirect(url_for("auth.login"))
+    if status == 429:
+        return abort(429)
     if status == 503 or r is None:
         abort(503)
 

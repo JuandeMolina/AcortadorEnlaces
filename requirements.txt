@@ -4,6 +4,7 @@ Flask-Migrate
 Flask-Login
 Flask-JWT-Extended
 Flask-Restx
+Flask-Limiter
 python-dotenv
 Werkzeug
 psycopg2-binary

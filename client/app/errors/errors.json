@@ -22,7 +22,7 @@
     "429": {
         "english_title": "Too Many Requests",
         "spanish_title": "Demasiadas peticiones",
-        "description": "La paciencia es la madre de la ciencia. Relájate, cuenta hasta tres, y haz lo que tengas que hacer."
+        "description": "La paciencia es la madre de la ciencia. Relájate, cuenta hasta tres, y vuelve a pedirme las cosas despacito y con buena letra."
     },
     "500": {
         "english_title": "Internal Server Error",

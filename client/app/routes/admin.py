@@ -25,6 +25,8 @@ def index():
 
     if status == 401:
         return redirect(url_for("auth.login"))
+    if status == 429:
+        abort(429)
     if status == 503 or r is None:
         abort(503)
 

@@ -13,7 +13,7 @@ from flask_restx import Namespace, Resource, fields
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy.exc import SQLAlchemyError
 
-from ..core import db
+from ..core import db, limiter
 from ..services import URLService
 from ..utils import validate_url, sanitize_url
 
@@ -25,9 +25,7 @@ shorten_input = ns.model(
     "ShortenInput", {"url": fields.String(required=True, description="URL to shorten")}
 )
 
-shorten_output = ns.model(
-    "ShortenOutput", {"shortUrl": fields.String, "alias": fields.String}
-)
+shorten_output = ns.model("ShortenOutput", {"alias": fields.String})
 
 url_item = ns.model(
     "URLItem",
@@ -46,6 +44,7 @@ url_item = ns.model(
 @ns.route("/shorten")
 class Shorten(Resource):
 
+    @limiter.limit("60 per minute")
     @ns.doc(security="Bearer")
     @ns.expect(shorten_input)
     @ns.marshal_with(shorten_output)
@@ -73,8 +72,7 @@ class Shorten(Resource):
             ns.abort(503, "storage_error")
 
         # Construir short URL usando el host de la petición
-        base = request.host_url.rstrip("/")
-        return {"shortUrl": f"{base}/{new_url.alias}", "alias": new_url.alias}, 201
+        return {"alias": new_url.alias}, 201
 
 
 @ns.route("")
@@ -120,7 +118,7 @@ class URLDetail(Resource):
         return {"success": True}, 200
 
 
-@ns.route("/<string:alias>")
+@ns.route("/redirect/<string:alias>")
 class URLRedirect(Resource):
 
     def get(self, alias):
